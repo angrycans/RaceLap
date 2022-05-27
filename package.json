@@ -11,6 +11,10 @@
     "release2": "react-native run-ios --configuration Release --device \"Acans iphoneXs Max\"",
     "start": "react-native start",
     "test": "jest",
+    "pod:install": "cd ios && pod install",
+    "preios": "yarn pod:install && yarn fix-nvm-ios",
+    "postinstall": "node ./scripts/set_access_token.js && jetifier",
+    "fix-nvm-ios": "node ./scripts/fix_nvm_issue.js",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
