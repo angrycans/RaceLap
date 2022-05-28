@@ -1,0 +1,1 @@
+export const UTCOFFSET = (0 - new Date().getTimezoneOffset() / 60);

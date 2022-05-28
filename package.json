@@ -21,6 +21,7 @@
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/native-stack": "^6.6.2",
     "@rnmapbox/maps": "github:rnmapbox/maps#main",
+    "@sigmayun/react-native-vconsole": "^0.0.9",
     "@voximplant/react-native-foreground-service": "^3.0.1",
     "immer": "^9.0.12",
     "moment": "^2.29.3",

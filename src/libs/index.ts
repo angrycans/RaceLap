@@ -1,5 +1,6 @@
 import { wgstogcj, gcj02towgs84 } from "./wgs84togcj02"
 import rnfile from "./rnfile"
+import { UTCOFFSET } from './utc'
 
 
 export type GPSPOSTION = {
@@ -16,5 +17,6 @@ export type GPSPOSTION = {
 }
 
 
+const IP = "http://192.168.4.1";
 
-export { wgstogcj, rnfile, gcj02towgs84 }
+export { wgstogcj, rnfile, gcj02towgs84, UTCOFFSET, IP }

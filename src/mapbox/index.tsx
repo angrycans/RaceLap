@@ -33,7 +33,7 @@ console.log("MapboxGL.StyleURL", MapboxGL.StyleURL)
 export default class MapBoxApp extends React.Component<IProps<IState, IlistActor>> {
     constructor(props: IProps) {
         super(props);
-        // this.props.actions.init()
+        this.props.actions.init();
     }
     render() {
         console.log("this.props", this.props)
@@ -62,9 +62,6 @@ export default class MapBoxApp extends React.Component<IProps<IState, IlistActor
                         >
                             <AnnotationContent />
                         </MapboxGL.PointAnnotation>
-
-
-
                     </MapboxGL.MapView>
                     <Button
                         title="ShowTracker"
@@ -72,7 +69,6 @@ export default class MapBoxApp extends React.Component<IProps<IState, IlistActor
                     />
                     <Button
                         title=""
-
                     />
                 </View>
             </View>
