@@ -10,7 +10,20 @@ const logger = (store) => (next) => (action) => {
 export interface IState {
   title: "hello",
   files: string[],
+  view: {
+    actionsheet: { isopen: boolean }
+  },
   txt: string[],
+  finishline: {
+    type: string,
+    geometry: {
+      type: string,
+      coordinates: [
+        [number, number],
+
+      ],
+    }
+  }
   geojosn: {
     type: string,
     geometry: {
@@ -27,14 +40,22 @@ const defalutStates = {
   title: "hello",
   files: [],
   txt: [],
-  geojosn: {
+  view: {
+    actionsheet: { isopen: true }
+  },
+  finishline: {
     type: 'Feature',
     geometry: {
       type: 'LineString',
-      coordinates: [
-        [-77.044211, 38.852924],
-
-      ],
+      coordinates: [],
+    }
+  },
+  geojosn: {
+    type: 'Feature',
+    properties: { 'color': '#F7455D' },
+    geometry: {
+      type: 'LineString',
+      coordinates: [],
     }
   }
 };

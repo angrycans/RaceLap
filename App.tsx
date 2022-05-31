@@ -6,11 +6,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './src/home';
 import DetailsScreen from './src/details';
 import GeolocationService from './src/react-native-geolocation-service'
-import MapBoxApp from './src/mapbox'
-import ListFileApp from './src/mapbox/listfile'
+import MapBoxAppScreen from './src/mapbox'
+import ListFileAppScreen from './src/mapbox/listfile'
+import { msg } from './src/libs'
+
 
 const Stack = createNativeStackNavigator();
-import VConsole from '@sigmayun/react-native-vconsole'
+//import VConsole from '@sigmayun/react-native-vconsole'
 
 function App() {
   return (
@@ -20,13 +22,21 @@ function App() {
         <Stack.Screen name="Home" component={HomeScreen} />
         {/* <Stack.Screen name="Details" component={DetailsScreen} /> */}
         <Stack.Screen name="GeolocationService" component={GeolocationService} />
-        <Stack.Screen name="ListFileApp" component={ListFileApp} />
-        <Stack.Screen name="MapBoxApp" component={MapBoxApp} />
+        <Stack.Screen name="ListFileApp" component={ListFileAppScreen} />
+        <Stack.Screen name="MapBoxApp" component={MapBoxAppScreen} options={{
+          title: 'My home',
+          headerRight: () => (
+            <Text
+              onPress={() => msg.emit('MapBoxActionSheetOpen')}
+
+            >Menu</Text>
+          ),
+        }} />
       </Stack.Navigator>
-      <View>
+      {/* <View>
         <VConsole />
         <View></View>
-      </View>
+      </View> */}
     </NavigationContainer>
   );
 }

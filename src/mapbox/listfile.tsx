@@ -21,10 +21,10 @@ import {
 //@connect([], listActor, listComputed)
 //@connect(null, listActor, listComputed)
 //@connect({ state: null, actor: listActor, computed: listComputed })
-export default class ListFileApp extends React.Component<IProps<IState, IlistActor>> {
+export default class ListFileAppScreen extends React.Component<IProps<IState, IlistActor>> {
   constructor(props: IProps) {
     super(props);
-    this.props.actions.listfile()
+    this.props.actions.listfile();
   }
   render() {
     console.log("this.props", this.props)
@@ -38,6 +38,9 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
               await this.props.actions.downfile(item);
 
               console.log("downfile ok")
+
+              await this.props.actions.getMcuCfg();
+              console.log("getMcuCfg ok")
               navigation.navigate('MapBoxApp');
 
             }}>{item}</Text>}
