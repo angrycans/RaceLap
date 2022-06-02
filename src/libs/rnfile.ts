@@ -1,14 +1,17 @@
 import RNFS from 'react-native-fs';
 import moment from 'moment';
-import { GPSPOSTION } from "./index"
+import { GPSPOSTION, defaultRLDATAPath } from "./index"
 import { Platform, PermissionsAndroid } from 'react-native';
 
 // 文件路径
-const defaultPath = (Platform.OS === 'android' ? RNFS.MainBundlePath : RNFS.DocumentDirectoryPath) + '/data';
-const destPath = defaultPath + '/racelap';
+
+const destPath = defaultRLDATAPath + '/racelap';
 const splitStr = '\n';
 
 class FileUtil {
+
+
+
     async writeGps(data: GPSPOSTION, filename: string) {
         const isDir = await this.mkDir();
         // console.log(isDir, 'dir')
@@ -285,8 +288,31 @@ class FileUtil {
                 console.log('err', err);
             });
     }
+
+    /*创建目录*/
+    async mkdefaultRLDATAPathDir() {
+        const options = {
+            NSURLIsExcludedFromBackupKey: true, // iOS only
+        };
+
+        const isExists = await RNFS.exists(defaultRLDATAPath)
+        console.log("defaultRLDATAPath isExists " + isExists);
+        if (!isExists) {
+            await RNFS.mkdir(defaultRLDATAPath, options)
+                .then((res) => {
+                    console.log('MKDIR success',);
+                    return true;
+                }).catch((err) => {
+                    console.log('err', err);
+                });
+        }
+
+    }
 }
 
 const rnfile = new FileUtil();
+
+
+rnfile.mkdefaultRLDATAPathDir();
 
 export default rnfile;

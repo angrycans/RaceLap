@@ -3,12 +3,28 @@ import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+
+import { Button, lightColors, createTheme, ThemeProvider } from '@rneui/themed';
+
+
+
 import HomeScreen from './src/home';
 import DetailsScreen from './src/details';
 import GeolocationService from './src/react-native-geolocation-service'
 import MapBoxAppScreen from './src/mapbox'
 import ListFileAppScreen from './src/mapbox/listfile'
+
+
 import { msg } from './src/libs'
+
+const theme = createTheme({
+  lightColors: {
+    primary: '#e7e7e8',
+  },
+  darkColors: {
+    primary: '#000',
+  },
+});
 
 
 const Stack = createNativeStackNavigator();
@@ -16,28 +32,30 @@ const Stack = createNativeStackNavigator();
 
 function App() {
   return (
-    <NavigationContainer>
+    <ThemeProvider theme={theme}>
+      <NavigationContainer>
 
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={HomeScreen} />
-        {/* <Stack.Screen name="Details" component={DetailsScreen} /> */}
-        <Stack.Screen name="GeolocationService" component={GeolocationService} />
-        <Stack.Screen name="ListFileApp" component={ListFileAppScreen} />
-        <Stack.Screen name="MapBoxApp" component={MapBoxAppScreen} options={{
-          title: 'My home',
-          headerRight: () => (
-            <Text
-              onPress={() => msg.emit('MapBoxActionSheetOpen')}
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen name="Home" component={HomeScreen} />
+          {/* <Stack.Screen name="Details" component={DetailsScreen} /> */}
+          <Stack.Screen name="GeolocationService" component={GeolocationService} />
+          <Stack.Screen name="ListFileApp" component={ListFileAppScreen} />
+          <Stack.Screen name="MapBoxApp" component={MapBoxAppScreen} options={{
+            title: 'My home',
+            headerRight: () => (
+              <Text
+                onPress={() => msg.emit('MapBoxActionSheetOpen')}
 
-            >Menu</Text>
-          ),
-        }} />
-      </Stack.Navigator>
-      {/* <View>
+              >Menu</Text>
+            ),
+          }} />
+        </Stack.Navigator>
+        {/* <View>
         <VConsole />
         <View></View>
       </View> */}
-    </NavigationContainer>
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
 

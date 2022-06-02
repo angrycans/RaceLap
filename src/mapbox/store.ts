@@ -9,7 +9,7 @@ const logger = (store) => (next) => (action) => {
 
 export interface IState {
   title: "hello",
-  files: string[],
+  files: [string, number],
   view: {
     actionsheet: { isopen: boolean }
   },
@@ -38,7 +38,7 @@ export interface IState {
 
 const defalutStates = {
   title: "hello",
-  files: [],
+  //files: [],
   txt: [],
   view: {
     actionsheet: { isopen: true }

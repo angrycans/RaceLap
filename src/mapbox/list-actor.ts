@@ -1,117 +1,53 @@
 import { IStore } from "sim-redux";
-import { IState } from "./store";
+import { IState } from "./list-store";
 import { produce } from "immer";
 import moment from "moment";
+import RNFS, { downloadFile, readDir } from "react-native-fs"
 
-import { IP, segmentsIntersect, isFinishLinePassed } from "../libs";
+import { IP, segmentsIntersect, isFinishLinePassed, defaultRLDATAPath, msg } from "../libs";
+
+function file_size(bytes: number) {
+  let fsize: string = "";
+  if (bytes < 1024)
+    fsize = bytes + " B";
+  else if (bytes < (1024 * 1024))
+    fsize = bytes / 1024 + " KB";
+  else if (bytes < (1024 * 1024 * 1024))
+    fsize = bytes / 1024.0 / 1024.0 + " MB";
+  else
+    fsize = bytes / 1024.0 / 1024.0 / 1024.0 + " GB";
+  return fsize;
+}
 
 const listActor = (store: IStore<IState>) => ({
 
-  /** 初始化一条todo */
-  init: async () => {
-    console.log("actor init");
-    return new Promise((r) => {
-
-      const newState = produce(store.getState(), (draft) => {
-        draft.geojosn.geometry.coordinates = [];
-
-        console.log("draft.txt.length=", draft.txt.length);
-        if (draft.txt.length == 0) {
-          let d = data.split("\n");
-          //console.log("d=", d);
-          if (d[d.length - 1] == "") {
-            d.pop();
-          }
-          draft.txt = d;
-        }
-
-        // console.log("draft.txt ", draft.txt)
-        let cfg = { "lat1": "32.1053905", "lng1": "118.863382", "lat2": "32.105466", "lng2": "118.8633663", "trackname": "" };
-        if (draft.finishline.geometry.coordinates.length == 0) {
-          // {"lat1":"32.1053905","lng1":"118.863382","lat2":"32.105466","lng2":"118.8633663","trackname":""}
-          draft.finishline.geometry.coordinates.push([parseFloat(cfg.lng1), parseFloat(cfg.lat1)]);
-          draft.finishline.geometry.coordinates.push([parseFloat(cfg.lng2), parseFloat(cfg.lat2)]);
-        }
-
-
-        draft.txt.forEach(d => {
-          let pos = d.split(",")
-          //console.log(pos)
-          draft.geojosn.geometry.coordinates.push([parseFloat(pos[2]), parseFloat(pos[1])])
-        })
-
-      });
-
-      r(newState);
-
-    });
-  },
-  lapcomputer: async () => {
-    console.log("actor lapcomputer");
-    return new Promise((r) => {
-      const newState = produce(store.getState(), (draft) => {
-
-
-        let prev = null;
-        let lastdatetime = 0;
-        let cfg = { "lat1": 32.1053905, "lng1": 118.863382, "lat2": 32.105466, "lng2": 118.8633663, "trackname": "" };
-
-        store.getState().txt.forEach((item) => {
-          //console.log("item1", item);
-          let pos = item.split(",");
-          // console.log(pos)
-          // draft.geojosn.geometry.coordinates.push([parseFloat(pos[2]), parseFloat(pos[1])])
-          if (prev) {
-            let isChecked = segmentsIntersect(parseFloat(pos[1]), parseFloat(pos[2]), parseFloat(prev[1]), parseFloat(prev[2]), cfg.lat1, cfg.lng1, cfg.lat2, cfg.lng2);
-            if (isChecked) {
-              console.log("isChecked ", pos, prev);
-
-              if (lastdatetime != 0) {
-                console.log("laptimer ", moment(pos[0], 'YYYY-MM-DDHH:mm:ss.SSS') - moment(lastdatetime, 'YYYY-MM-DDHH:mm:ss.SSS'));
-
-              }
-              lastdatetime = pos[0];
-            }
-
-            let isChecked2 = isFinishLinePassed({ lat: parseFloat(pos[1]), lng: parseFloat(pos[2]) }, { lat: parseFloat(prev[1]), lng: parseFloat(prev[2]) }, { lat: cfg.lat1, lng: cfg.lng1 }, { lat: cfg.lat2, lng: cfg.lng2 });
-            if (isChecked2 != 0) {
-              console.log("ischecked2 ", pos, isChecked2)
-            }
-
-
-          }
-
-          prev = pos;
-          // prevlat = parseFloat(pos[1]);
-          // prevlng = parseFloat(pos[2]);
-
-        })
-
-
-      });
-
-      r(newState);
-
-    });
-  },
   /** get file list*/
   listfile: async () => {
-    console.log("list init");
-    const response = await fetch(
-      IP + '/listsdjson'
-    );
-    const ret = await response.text();
-    console.log("json", ret);
+    console.log("list listfile");
+    let ret;
+    try {
+      const response = await fetch(
+        IP + '/listsdjson'
+      );
+      ret = await response.text();
+
+      console.log("json", ret);
+    } catch (e) {
+      console.log("listfile err" + e);
+    }
 
     // console.log("ret=", JSON.parse(json))
     const newState = produce(store.getState(), (draft) => {
 
-      let d = ret.split(",");
-      if (d[d.length - 1] == "") {
-        d.pop();
-      }
-      draft.files = d;
+      let dret = ret.slice(0, -1);
 
+      draft.serverfiles = dret.split(",").map(rowStr => {
+        const col = rowStr.split("_");
+        return [col[0], +col[1]]
+      });
+
+
+      console.log("draft.serverfiles", draft.serverfiles)
     });
     return (newState);
   },
@@ -133,42 +69,239 @@ const listActor = (store: IStore<IState>) => ({
       }
       draft.txt = d;
 
+
+
     });
     return (newState);
   },
 
-  /** get file list*/
-  getMcuCfg: async () => {
-    console.log("getMcuCfg init");
-    const response = await fetch(
-      IP + '/getmcucfg'
-    );
-    const ret = await response.json();
-    console.log("json", ret);
+  /** getlocal file */
+  getLocalFile: async () => {
+    console.log("getLocalFile ...");
 
-    // console.log("ret=", JSON.parse(json))
+    const reader = await RNFS.readDir(defaultRLDATAPath);
+    console.log("reader", reader);
+
     const newState = produce(store.getState(), (draft) => {
-      draft.finishline.geometry.coordinates = [];
-      if (ret.e.code > 0) {
-        draft.finishline.geometry.coordinates.push([parseFloat(ret.data.lng1), parseFloat(ret.data.lat1)]);
-        draft.finishline.geometry.coordinates.push([parseFloat(ret.data.lng2), parseFloat(ret.data.lat2)]);
+      draft.localfiles = [];
+      draft.localfiles = reader.map(({ name, size, mtime, ctime, isDirectory, path }) => {
+        //console.log(item);
+        if (!isDirectory()) {
+          return { name, mtime, ctime, path, size };
+        }
+      })
+
+
+
+      console.log("draft.localfiles=>", draft.localfiles)
+
+      if (store.getState()?.serverfiles) {
+        for (let i = 0; i < store.getState()?.serverfiles.length; i++) {
+          if ((store.getState()?.serverfiles[i][0] == "/RLDATA/track.txt") || (store.getState()?.serverfiles[i][0] == "/RLDATA/log.txt")) {
+            //continue;
+          }
+          //console.log("store.getState()?.serverfiles[i]", i);
+          let finditem = draft.localfiles.find((item) => {
+            let name = store.getState()?.serverfiles[i][0];
+            let size = store.getState()?.serverfiles[i][1];
+            //console.log("l s name ", item.name, name.substring(name.lastIndexOf("/") + 1, name.length), item.size, size);
+            return store.getState()?.serverfiles[i][0] == "/RLDATA/" + item.name && item.size == store.getState()?.serverfiles[i][1]
+
+          });
+
+          //console.log("finditem", finditem)
+          if (!finditem) {
+            draft.localfiles.push({
+              name: store.getState().serverfiles[i][0],
+              size: +store.getState().serverfiles[i][1],
+              isserver: 1,
+              progress: -1
+            });
+          }
+        }
       }
 
+      console.log("draft.localfiles2=>", draft.localfiles)
+
+
     });
     return (newState);
   },
+  downLocalFilefromserver: async (item) => {
+    console.log("getLocalFilefromserver ...");
 
-  changeActionSheet: async (b) => {
+    //for (let i = 0; i < store.getState().localfiles.length; i++) {
+
+    // let name = store.getState().localfiles[i].name;
+    let name = item.name;
+    let realname = name.substring(name.lastIndexOf("/") + 1, name.length);
+
+    console.log(realname);
+
+    const options = {
+      fromUrl: IP + "/down?file=" + name,
+      toFile: defaultRLDATAPath + realname,
+      background: true,
+      begin: (res) => {
+        //  console.log('begin', res);
+        //console.log('contentLength:', res.contentLength / 1024 / 1024, 'M');
+      },
+      progress: (res) => {
+        if (realname == "log.txt") {
+          let pro = res.bytesWritten / res.contentLength;
+          console.log("down progress " + pro);
+        }
+        // let pro = res.bytesWritten / res.contentLength;
+        //  console.log("down progress " + pro);
+      }
+    };
+
+
+    let ret = 0;
+    let res =
+      await RNFS.downloadFile(options).promise
+        .then(() => {
+          ret = 1;
+        })
+        .catch((err) => {
+          console.log("downLocalFilefromserver", err.message);
+          ret = 0;
+        })
+
+
+    console.log("downLocalFilefromserver end")
+    const newState = produce(store.getState(), (draft) => {
+
+      draft.localfiles.find(l => {
+
+        if (l.name == name) {
+          l.name = realname;
+          l.progress = 100;
+          l.isserver = 0;
+        }
+      })
+    })
+
+    return (newState);
+
+    //  }
+
+  },
+  /**  changeTab */
+  changeTab: async (b) => {
+    console.log("changeTab ....");
 
     const newState = produce(store.getState(), (draft) => {
-      draft.view.actionsheet.isopen = b;
+
+      draft.tabIndx = b;
+    });
+    return (newState);
+  },
+  /**  delfile */
+  delfile: async (filename) => {
+    console.log("delfile ....", filename);
+
+    const response = await fetch(
+      IP + '/del?file=' + filename
+    );
+    const ret = await response.json();
+
+    console.log("ret", ret);
+    // return;
+
+    const newState = produce(store.getState(), (draft) => {
+
+      //draft.tabIndx = b;
+      if (ret.e.code == 1) {
+        draft.serverfiles.splice(draft.serverfiles.findIndex(item => {
+          console.log("item[0]", item[0])
+          return item[0] == filename;
+        }), 1)
+      }
+
 
     });
     return (newState);
   },
+  delfilefromlocal: async (file) => {
+    console.log("delfilefromlocal ....", file.name);
+
+    const filePath = defaultRLDATAPath + file.name;
+    try {
+      await RNFS.unlink(filePath)
+    } catch (e) {
+      console.error("delfilefromlocal", e);
+      return store.getState();
+    }
+    const newState = produce(store.getState(), (draft) => {
+
+      draft.localfiles.splice(draft.localfiles.findIndex(item => {
+        return item.name == file.name;
+      }), 1)
+
+    });
+    return (newState);
+  }
 });
 
 export { listActor };
 
 export type IlistActor = typeof listActor;
 
+
+/*
+ const options = {
+            fromUrl: IP + "/down?file=" + item[0],
+            toFile: defaultFSPath + "/" + item[0],
+            background: true,
+            begin: (res) => {
+              console.log('begin', res);
+              console.log('contentLength:', res.contentLength / 1024 / 1024, 'M');
+            },
+            progress: (res) => {
+
+              let pro = res.bytesWritten / res.contentLength;
+              console.log("down progress " + pro);
+
+              // this.setState({
+              //     progressNum: pro,
+              // });
+            }
+          };
+          try {
+            const ret = RNFS.downloadFile(options);
+            ret.promise.then(res => {
+              console.log('success', res);
+            }).catch(err => {
+              console.log('err', err);
+            });
+          }
+*/
+/*
+    const options = {
+      fromUrl: IP + "/down?file=/RLDATA/track.txt",
+      toFile: defaultFSPath + "/RLDATA/track.txt",
+      background: true,
+      begin: (res) => {
+        console.log('begin', res);
+        console.log('contentLength:', res.contentLength / 1024 / 1024, 'M');
+      },
+      progress: (res) => {
+
+        let pro = res.bytesWritten / res.contentLength;
+        console.log("down progress " + pro);
+
+        // this.setState({
+        //     progressNum: pro,
+        // });
+      }
+    };
+
+    const ret = RNFS.downloadFile(options);
+    ret.promise.then(res => {
+      console.log('success', res);
+    }).catch(err => {
+      console.log('err', err);
+    });
+
+*/
