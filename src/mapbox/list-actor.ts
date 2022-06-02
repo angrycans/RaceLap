@@ -42,8 +42,9 @@ const listActor = (store: IStore<IState>) => ({
       let dret = ret.slice(0, -1);
 
       draft.serverfiles = dret.split(",").map(rowStr => {
-        const col = rowStr.split("_");
-        return [col[0], +col[1]]
+        let pos = rowStr.lastIndexOf("_");
+        //const col = rowStr.split("_");
+        return [rowStr.substring(0, pos), +rowStr.substring(pos + 1, rowStr.length)]
       });
 
 

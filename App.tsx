@@ -13,6 +13,7 @@ import DetailsScreen from './src/details';
 import GeolocationService from './src/react-native-geolocation-service'
 import MapBoxAppScreen from './src/mapbox'
 import ListFileAppScreen from './src/mapbox/listfile'
+import ViewTxt from './src/mapbox/view-txt'
 
 
 import { msg } from './src/libs'
@@ -49,6 +50,7 @@ function App() {
               >Menu</Text>
             ),
           }} />
+          <Stack.Screen name="ViewTxtScreen" component={ViewTxt} />
         </Stack.Navigator>
         {/* <View>
         <VConsole />

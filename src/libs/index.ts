@@ -34,6 +34,13 @@ const defaultRLDATAPath = (Platform.OS === 'android' ? RNFS.MainBundlePath : RNF
 
 
 
+function formatMS(msTime: number) {
+    let time = msTime / 1000;
+    let minute = Math.floor(time / 60) % 60;
+    let second = Math.floor(time) % 60;
+    let cs = msTime.toString().substring(msTime.toString().length - 3);
+    return `${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}.${cs.padStart(3, "0")}`;
+}
 
 
 
@@ -41,4 +48,5 @@ export {
     wgstogcj, rnfile, gcj02towgs84, UTCOFFSET, IP, segmentsIntersect, isFinishLinePassed, msg, MapboxAccessToken,
     defaultFSPath,
     defaultRLDATAPath,
+    formatMS,
 }

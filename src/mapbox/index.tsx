@@ -1,23 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { connect, withRedux, IProps } from "sim-redux";
 import MapboxGL from '@rnmapbox/maps';
-import { msg, MapboxAccessToken } from '../libs'
-import { ListItem, Avatar, TabView, Tab, Button, Text } from '@rneui/themed'
+import { msg, MapboxAccessToken, formatMS } from '../libs'
+import { ListItem, Icon, Avatar, TabView, Tab, Button, Text } from '@rneui/themed'
+
+import { useTrack } from "./hooks"
+import exampleIcon from './pin.png';
+
 
 MapboxGL.setAccessToken(MapboxAccessToken);
 
-import { IState, store } from "./store";
-import {
-    IIndexActor,
-    indexActor
-} from "./index-actor";
-
-const dataArray = [
-    { title: "First Element", content: "Lorem ipsum dolor sit amet" },
-    { title: "Second Element", content: "Lorem ipsum dolor sit amet" },
-    { title: "Third Element", content: "Lorem ipsum dolor sit amet" }
-];
 
 const AnnotationContent = () => (
     <View style={styles.touchableContainer}>
@@ -27,96 +19,140 @@ const AnnotationContent = () => (
         </TouchableOpacity>
     </View>
 );
-
-@withRedux(store)
-
-@connect(indexActor)
-
-export default class MapBoxAppScreen extends React.Component<IProps<IState, IIndexActor>> {
-    constructor(props: IProps) {
-        super(props);
-
-        console.log("this.props", this.props)
-        this.props.actions.init();
-
-    }
-
-    handleOpen = () => { this.props.actions.changeActionSheet(true) }
-
-
-    componentDidMount() {
-
-        msg.on("MapBoxActionSheetOpen", this.handleOpen);
-    }
+const featureCollection = {
+    type: 'FeatureCollection',
+    features: [
+        {
+            type: 'Feature',
+            id: '9d10456e-bdda-4aa9-9269-04c1667d4552',
+            properties: {
+                icon: 'example',
+                message: 'Hello!',
+            },
+            geometry: {
+                type: 'Point',
+                // coordinates: [12.338, 45.4385],
+                coordinates: [118.76410717, 31.97739967],
+                //'31.97739967', '118.76410717'
+            },
+        },
+    ],
+};
 
 
-    componentWillUnmount() {
-        msg.off("MapBoxActionSheetOpen", this.handleOpen);
-    }
+const MapBoxAppScreen = () => {
+    // console.log("route", route);
 
+    const [expanded, setExpanded] = useState(true)
+    const { finishlineJson, sessionJosn, trackJosn, ddd } = useTrack()
+    console.log("useTrack ", finishlineJson, sessionJosn, trackJosn, ddd);
+    console.log("featureCollection ", featureCollection)
+    return (
 
-    render() {
-
-        console.log("this.props", this.props)
-        return (
-
-            <View style={styles.page}>
+        <View style={styles.page}>
+            {sessionJosn.geometry.coordinates.length > 0 ?
 
                 <View style={styles.container}>
+                    <ListItem.Accordion
+                        content={
+                            <>
+                                <Icon name="place" size={30} />
+                                <ListItem.Content>
+                                    <ListItem.Title>LAP</ListItem.Title>
+                                </ListItem.Content>
+                            </>
+                        }
+                        isExpanded={expanded}
+                        onPress={() => {
+                            setExpanded(!expanded);
+                        }}
+                    >
+                        {trackJosn.lap.map((l, i) => (
+                            <ListItem key={i} bottomDivider>
+
+                                <ListItem.Content onPress={() => {
+
+                                }}>
+                                    <ListItem.Title>{`Lap ${i} timer:${formatMS(l.timer)}`}</ListItem.Title>
+
+                                </ListItem.Content>
+                                <ListItem.Chevron />
+                            </ListItem>
+                        ))}
+                    </ListItem.Accordion>
 
                     <MapboxGL.MapView styleURL={MapboxGL.StyleURL.Light} style={styles.map}>
                         <MapboxGL.Camera
                             zoomLevel={18}
-                            //centerCoordinate={[118.86906246566899, 32.10348051760452]}
-                            centerCoordinate={this.props.geojosn.geometry.coordinates[0]}
-                        //32.103588663718895,118.86896587214841
-                        //centerCoordinate={[-77.035, 38.875]}
+                            //  centerCoordinate={[12.338, 45.4385]}
+                            centerCoordinate={sessionJosn.geometry.coordinates[0]}
                         />
-                        {this.props.geojosn.geometry.coordinates.length > 0 &&
-                            <MapboxGL.ShapeSource
-                                id="source1"
-                                lineMetrics={true}
-                                shape={this.props.geojosn}
-                            >
-                                <MapboxGL.LineLayer id="layer1" style={styles.lineLayer} />
 
-                            </MapboxGL.ShapeSource>
-                        }
 
-                        {this.props.finishline.geometry.coordinates.length > 0 &&
-                            <MapboxGL.ShapeSource
-                                id="source2"
-                                lineMetrics={true}
-                                shape={this.props.finishline}
-                            >
-                                <MapboxGL.LineLayer id="layer2" style={styles.lineLayer} />
 
-                            </MapboxGL.ShapeSource>
 
-                        }
+                        {finishlineJson.geometry.coordinates.length > 0 && <MapboxGL.ShapeSource
+                            id="source2"
+                            lineMetrics={true}
+                            shape={finishlineJson}
+                        ><MapboxGL.LineLayer id="layer2" style={styles.lineLayer} />
+                        </MapboxGL.ShapeSource>}
 
-                        {this.props.geojosn.geometry.coordinates.length > 0 &&
-                            <MapboxGL.PointAnnotation
-                                coordinate={this.props.geojosn.geometry.coordinates[0]}
-                                id="pt-ann"
-                            >
-                                <AnnotationContent />
-                            </MapboxGL.PointAnnotation>
-                        }
+                        <MapboxGL.ShapeSource
+                            id="source1"
+                            lineMetrics={true}
+                            shape={sessionJosn}
+                        >
+                            <MapboxGL.LineLayer id="layer1" style={styles.lineLayer2} />
+
+                        </MapboxGL.ShapeSource>
+
+                        <MapboxGL.ShapeSource
+                            id="mapPinsSource"
+                            shape={ddd}
+                        //  onPress={onPinPress}
+                        >
+                            {/* <MapboxGL.SymbolLayer id="mapPinsLayer" style={styles2.mapPinLayer} /> */}
+                            <MapboxGL.LineLayer id="layer3" style={styles2.mapPinLayer2} />
+                        </MapboxGL.ShapeSource>
+
+                        <MapboxGL.PointAnnotation
+                            coordinate={sessionJosn.geometry.coordinates[0]}
+                            id="pt-ann"
+                        >
+                            <AnnotationContent />
+                        </MapboxGL.PointAnnotation>
+
                     </MapboxGL.MapView>
 
                     <Button
                         title="ShowTrackerLap"
-                        onPress={() => this.props.actions.lapcomputer()}
+                    // onPress={() => this.props.actions.lapcomputer()}
                     />
                     <Button
                         title=""
                     />
                 </View>
-            </View>
-        );
-    }
+                : <Text>File invaild</Text>}
+        </View>
+    );
 }
+
+export default MapBoxAppScreen;
+
+const styles2 = {
+    mapPinLayer: {
+        iconAllowOverlap: true,
+        iconAnchor: 'bottom',
+        iconSize: 1.0,
+        iconImage: exampleIcon,
+    },
+    mapPinLayer2: {
+        lineWidth: 2,
+        lineColor: ['get', 'color']
+    }
+};
+
 
 const styles = StyleSheet.create({
     page: {
@@ -133,22 +169,24 @@ const styles = StyleSheet.create({
     map: {
         flex: 1
     },
+    mapPinLayer: {
+        iconAllowOverlap: true,
+        iconAnchor: 'bottom',
+        iconSize: 1.0,
+        //iconImage: exampleIcon,
+    },
     lineLayer: {
-        //lineColor: 'red',
+        lineColor: 'black',
         lineCap: 'round',
         lineJoin: 'round',
-        lineWidth: 4,
-        lineGradient: [
-            'interpolate',
-            ['linear'],
-            ['line-progress'],
-            0,
-            'blue',
+        lineWidth: 1,
 
-
-            1,
-            'red',
-        ],
+    },
+    lineLayer2: {
+        lineColor: 'red',
+        lineCap: 'round',
+        lineJoin: 'round',
+        lineWidth: 1,
     },
     touchableContainer: { borderColor: 'black', borderWidth: 0, width: 40 },
     touchable: {

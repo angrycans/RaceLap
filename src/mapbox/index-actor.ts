@@ -1,5 +1,5 @@
 import { IStore } from "sim-redux";
-import { IState } from "./store";
+import { IState } from "./hooks";
 import { produce } from "immer";
 import moment from "moment";
 

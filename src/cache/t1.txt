@@ -1,0 +1,148 @@
+import { useState, useEffect } from "react"
+import moment from "moment";
+import RNFS, { downloadFile, readDir } from "react-native-fs"
+import { IP, segmentsIntersect, isFinishLinePassed, defaultRLDATAPath, msg } from "../libs";
+import { useRoute, RouteProp } from '@react-navigation/native';
+import { useImmer } from "use-immer";
+import { useMount } from "ahooks"
+import { loadPartialConfig } from "@babel/core";
+
+
+
+let sessionData;
+let finishData;
+
+let finishlineJson = {
+  type: 'Feature',
+  geometry: {
+    type: 'LineString',
+    coordinates: [
+
+    ],
+  }
+}
+
+let sessionJosn = {
+  type: 'Feature',
+  properties: { 'color': '#F7455D' },
+  geometry: {
+    type: 'LineString',
+    coordinates: [
+
+    ]
+  }
+}
+
+let trackJosn = {
+  lap: [
+    [0, 12],
+
+  ]
+}
+
+let isInit = 0;
+
+function useTrack() {
+  const [trackSession, setTrackSession] = useImmer({ finishlineJson, sessionJosn, isInit });
+  const route = useRoute<RouteProp<{ params: { name: string } }>>();
+  //const [isInit, setisInit] = useState(0);
+
+
+  useEffect(() => {
+    ; (async () => {
+      const txt = await RNFS.readFile(defaultRLDATAPath + route.params.name, 'utf8');
+      sessionData = txt.split("\n");
+      if (sessionData[sessionData.length - 1] == "") {
+        sessionData.pop();
+      };
+      //setisInit(1);
+      console.log("sessionData", sessionData);
+
+      const finishTxt = await RNFS.readFile(defaultRLDATAPath + "track.txt", 'utf8');
+
+      finishData = JSON.parse(finishTxt);
+
+      console.log("finishData", finishData)
+      // setisInit(2);
+
+
+      //getLap();
+      // setisInit(3);
+
+      setTrackSession(draft => {
+        draft.sessionJosn.geometry.coordinates = [];
+
+        sessionData.forEach(d => {
+          let pos = d.split(",")
+          draft.sessionJosn.geometry.coordinates.push([parseFloat(pos[2]), parseFloat(pos[1])])
+          console.log("d", d);
+        });
+        draft.finishlineJson.geometry.coordinates = [];
+        draft.finishlineJson.geometry.coordinates.push([parseFloat(finishData.lng1), parseFloat(finishData.lat1)]);
+        draft.finishlineJson.geometry.coordinates.push([parseFloat(finishData.lng2), parseFloat(finishData.lat2)]);
+
+        draft.isInit = 1;
+        // draft.
+      })
+
+
+    })();
+
+
+    return () => {
+
+    }
+  }, [])
+  return { sessionJosn, finishlineJson, isInit };
+}
+
+
+
+function getLap() {
+  console.log("getlap start...")
+  let prev = null;
+  let lastdatetime = 0;
+
+  finishData = { "lat1": "32.1053905", "lng1": "118.863382", "lat2": "32.105466", "lng2": "118.8633663", "trackname": "" };
+
+  console.log("finishData", finishData);
+  //console.log("sessionData", sessionData);
+
+
+  sessionData.forEach((item, idx) => {
+    //console.log("item1", item);
+    let pos = item.split(",");
+
+    // draft.geojosn.geometry.coordinates.push([parseFloat(pos[2]), parseFloat(pos[1])])
+    if (prev) {
+      let isChecked = segmentsIntersect(parseFloat(pos[1]), parseFloat(pos[2]), parseFloat(prev[1]), parseFloat(prev[2]), finishData.lat1, finishData.lng1, finishData.lat2, finishData.lng2);
+      if (isChecked) {
+        //console.log("isChecked ", pos, prev, sessionData[idx].split(","));
+
+        trackJosn.lap.push[idx];
+
+        if (lastdatetime != 0) {
+          //console.log("laptimer ", moment(pos[0], 'YYYY-MM-DDHH:mm:ss.SSS') - moment(lastdatetime, 'YYYY-MM-DDHH:mm:ss.SSS'));
+
+        }
+        lastdatetime = pos[0];
+      }
+
+      let isChecked2 = isFinishLinePassed({ lat: parseFloat(pos[1]), lng: parseFloat(pos[2]) }, { lat: parseFloat(prev[1]), lng: parseFloat(prev[2]) }, { lat: finishData.lat1, lng: finishData.lng1 }, { lat: finishData.lat2, lng: finishData.lng2 });
+      if (isChecked2 != 0) {
+        console.log("ischecked2 ", pos, isChecked2)
+      }
+    }
+
+    prev = pos;
+    // prevlat = parseFloat(pos[1]);
+    // prevlng = parseFloat(pos[2]);
+
+  })
+
+}
+
+
+export {
+  useTrack,
+}

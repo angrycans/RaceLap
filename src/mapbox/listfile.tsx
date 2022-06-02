@@ -94,6 +94,9 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
                           console.log("navgtion", item.name.indexOf("RL"));
                           if (item.name.indexOf("RL") >= 0) {
                             navigation.navigate('MapBoxApp', { name: item.name });
+                          } else {
+
+                            navigation.navigate('ViewTxtScreen', { name: item.name });
                           }
                         }
 
