@@ -34,6 +34,11 @@ const listActor = (store: IStore<IState>) => ({
       console.log("json", ret);
     } catch (e) {
       console.log("listfile err" + e);
+      const newState = produce(store.getState(), (draft) => {
+
+
+      });
+      return (newState);
     }
 
     // console.log("ret=", JSON.parse(json))
@@ -91,8 +96,6 @@ const listActor = (store: IStore<IState>) => ({
           return { name, mtime, ctime, path, size };
         }
       })
-
-
 
       console.log("draft.localfiles=>", draft.localfiles)
 

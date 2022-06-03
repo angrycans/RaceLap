@@ -115,6 +115,7 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
                         />
                       ) : null}
 
+
                     >
 
                       <ListItem.Content>
@@ -148,7 +149,7 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
                       onSwipeBegin={() => {
                         if (item[0] == "/RLDATA/log.txt" || item[0] == "/RLDATA/track.txt") {
                           console.log("onswipebeging");
-                          return;
+                          // return;
                         }
                       }}
 

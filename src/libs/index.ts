@@ -26,7 +26,9 @@ export type GPSPOSTION = {
 
 
 //const IP = "http://192.168.4.1";
-const IP = "http://172.19.3.39";
+const IP = "http://192.168.3.21";
+
+//const IP = "http://172.19.3.39";
 
 const MapboxAccessToken = "pk.eyJ1IjoiYW5ncnljYW5zIiwiYSI6ImNsMm8ycXdwdzAxeTczY204cXJ5ajBzeXEifQ.6Ln8QhR1LGdJC7YLjdZXsQ";
 const defaultFSPath = (Platform.OS === 'android' ? RNFS.MainBundlePath : RNFS.DocumentDirectoryPath);
