@@ -14,6 +14,9 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		7699B88040F8A987B510C191 /* libPods-RaceLap-RaceLapTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-RaceLap-RaceLapTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		CE03D947284BAD8000354D4E /* mapbox.bundle in Resources */ = {isa = PBXBuildFile; fileRef = CE03D946284BAD8000354D4E /* mapbox.bundle */; };
+		CE03D949284BAD8C00354D4E /* index2.html in Resources */ = {isa = PBXBuildFile; fileRef = CE03D948284BAD8C00354D4E /* index2.html */; };
+		CE03D94B284BADBF00354D4E /* index3.html in Resources */ = {isa = PBXBuildFile; fileRef = CE03D94A284BADBF00354D4E /* index3.html */; };
 		CE0E81112844EC9B0074A0D7 /* Mapbox in Frameworks */ = {isa = PBXBuildFile; productRef = C68878EAA0A4B30DB06C6C0D /* Mapbox */; };
 		CE0E81122844EC9B0074A0D7 /* Mapbox in Frameworks */ = {isa = PBXBuildFile; productRef = 6BCDE24AEAB430599138AEC1 /* Mapbox */; };
 		CEDEB2CD28470D5300DFE7FF /* EvilIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CEDEB2BD28470D5200DFE7FF /* EvilIcons.ttf */; };
@@ -61,6 +64,9 @@
 		5DCACB8F33CDC322A6C60F78 /* libPods-RaceLap.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RaceLap.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = RaceLap/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-RaceLap-RaceLapTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RaceLap-RaceLapTests.release.xcconfig"; path = "Target Support Files/Pods-RaceLap-RaceLapTests/Pods-RaceLap-RaceLapTests.release.xcconfig"; sourceTree = "<group>"; };
+		CE03D946284BAD8000354D4E /* mapbox.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = mapbox.bundle; path = "../web-bundle/react-mopbox/mapbox.bundle"; sourceTree = "<group>"; };
+		CE03D948284BAD8C00354D4E /* index2.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index2.html; path = "../web-bundle/index2.html"; sourceTree = "<group>"; };
+		CE03D94A284BADBF00354D4E /* index3.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index3.html; path = "../web-bundle/index3.html"; sourceTree = "<group>"; };
 		CEDEB2BD28470D5200DFE7FF /* EvilIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = EvilIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf"; sourceTree = "<group>"; };
 		CEDEB2BE28470D5200DFE7FF /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = FontAwesome5_Brands.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf"; sourceTree = "<group>"; };
 		CEDEB2BF28470D5200DFE7FF /* Ionicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
@@ -152,6 +158,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				CE03D94A284BADBF00354D4E /* index3.html */,
 				13B07FAE1A68108700A75B9A /* RaceLap */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* RaceLapTests */,
@@ -188,6 +195,8 @@
 		BEB68BEA6CAC496E95E50146 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				CE03D948284BAD8C00354D4E /* index2.html */,
+				CE03D946284BAD8000354D4E /* mapbox.bundle */,
 				CEDEB2C128470D5200DFE7FF /* AntDesign.ttf */,
 				CEDEB2CC28470D5300DFE7FF /* Entypo.ttf */,
 				CEDEB2BD28470D5200DFE7FF /* EvilIcons.ttf */,
@@ -315,9 +324,11 @@
 				CEDEB2D528470D5300DFE7FF /* Feather.ttf in Resources */,
 				CEDEB2D428470D5300DFE7FF /* FontAwesome.ttf in Resources */,
 				CEDEB2CF28470D5300DFE7FF /* Ionicons.ttf in Resources */,
+				CE03D949284BAD8C00354D4E /* index2.html in Resources */,
 				CEDEB2D128470D5300DFE7FF /* AntDesign.ttf in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				CEDEB2CE28470D5300DFE7FF /* FontAwesome5_Brands.ttf in Resources */,
+				CE03D94B284BADBF00354D4E /* index3.html in Resources */,
 				CEDEB2DC28470D5300DFE7FF /* Entypo.ttf in Resources */,
 				CEDEB2D828470D5300DFE7FF /* FontAwesome5_Solid.ttf in Resources */,
 				CEDEB2DA28470D5300DFE7FF /* MaterialIcons.ttf in Resources */,
@@ -329,6 +340,7 @@
 				CEDEB2D228470D5300DFE7FF /* MaterialCommunityIcons.ttf in Resources */,
 				CEDEB2DB28470D5300DFE7FF /* Zocial.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				CE03D947284BAD8000354D4E /* mapbox.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -582,7 +594,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.acans.RaceLap;
 				PRODUCT_NAME = RaceLap;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -609,7 +621,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.acans.RaceLap;
 				PRODUCT_NAME = RaceLap;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

@@ -14,6 +14,8 @@ import GeolocationService from './src/react-native-geolocation-service'
 import MapBoxAppScreen from './src/mapbox'
 import ListFileAppScreen from './src/mapbox/listfile'
 import ViewTxt from './src/mapbox/view-txt'
+import ShowTrackerWebView from './src/showtracker'
+
 
 
 import { msg } from './src/libs'
@@ -51,6 +53,7 @@ function App() {
             ),
           }} />
           <Stack.Screen name="ViewTxtScreen" component={ViewTxt} />
+          <Stack.Screen name="ShowTrackerWebView" component={ShowTrackerWebView} />
         </Stack.Navigator>
         {/* <View>
         <VConsole />

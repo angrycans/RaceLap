@@ -1,42 +1,30 @@
-import * as React from 'react';
-import { Button, View, Text } from 'react-native';
+import React, { Component } from 'react';
+import MapboxGL from '@rnmapbox/maps';
+import { StyleSheet, Text, View } from 'react-native';
+import { WebView } from 'react-native-webview';
 
+import { HttpWebIP } from '../libs'
 
+// ...
+const ShowTrackerWebView = () => {
 
-class ShowTrackerScreen extends React.Component {
+    return (
+        // <WebView source={{ uri: './mapbox.bundle/index.html' }}
+        //     allowFileAccess={true}
+        //     javaScriptEnabled={true}
+        //     decelerationRate='normal'
+        //     scrollEnabled={true}
+        //     useWebKit={true}
+        //     mediaPlaybackRequiresUserAction={true}
+        //     mixedContentMode="compatibility"
+        //     originWhitelist={["file://"]}
+        //     allowingReadAccessToURL="*"
 
-    constructor() {
-        super();
+        // />
+        <WebView source={{ uri: "//172.19.3.37:8881/" }} />
+    )
 
-    }
-
-    componentDidMount() {
-
-
-    }
-
-
-    componentWillUnmount() {
-    }
-
-    render() {
-        const { navigation } = this.props;
-        return (
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <Text>Home Screen</Text>
-                <Button
-                    title="Go to Details"
-                    onPress={() => navigation.navigate('Details')}
-                />
-
-                <Button
-                    title="Go to GeolocationService"
-                    onPress={() => navigation.navigate('GeolocationService')}
-                />
-            </View>
-        );
-    }
 }
 
 
-export default ShowTrackerScreen;
+export default ShowTrackerWebView;

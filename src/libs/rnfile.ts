@@ -291,6 +291,8 @@ class FileUtil {
 
     /*创建目录*/
     async mkdefaultRLDATAPathDir() {
+        console.log("mkdefaultRLDATAPathDir start");
+
         const options = {
             NSURLIsExcludedFromBackupKey: true, // iOS only
         };

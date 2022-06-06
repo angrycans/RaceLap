@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from 'react-native';
 
-import { ListItem, Avatar, TabView, Tab, Button } from '@rneui/themed'
+import { ListItem, Avatar, TabView, Tab, Button, hstack } from '@rneui/themed'
 
 import { connect, withRedux, IProps } from "sim-redux";
 
@@ -103,16 +103,27 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
                       }}
 
                       rightContent={!item.isserver ? (reset) => (
-                        <Button
-                          title="Delete"
-                          onPress={async () => {
-                            await this.props.actions.delfilefromlocal(item);
-                            reset()
-                          }
-                          }
-                          icon={{ name: 'delete', color: 'white' }}
-                          buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
-                        />
+                        <View style={styles.rightview}>
+                          <Button
+                            title=""
+                            onPress={async () => {
+                              navigation.navigate('ViewTxtScreen', { name: item.name });
+                              reset()
+                            }
+                            }
+                            icon={{ name: 'info', color: 'white' }}
+                            buttonStyle={{ minHeight: '100%', backgroundColor: 'blue' }}
+                          />
+                          <Button
+                            title=""
+                            onPress={async () => {
+                              await this.props.actions.delfilefromlocal(item);
+                              reset()
+                            }
+                            }
+                            icon={{ name: 'delete', color: 'white' }}
+                            buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
+                          /></View>
                       ) : null}
 
 
@@ -211,15 +222,14 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
     }}>{item}</Text>}
 />
 </View>
-
+*/
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 22
   },
-  item: {
-    padding: 10,
-    fontSize: 18,
-    height: 44,
+  rightview: {
+    flexDirection: 'row',
+    width: 300
   },
-}); */
+}); 

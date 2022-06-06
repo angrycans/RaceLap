@@ -27,8 +27,8 @@ class HomeScreen extends React.Component {
 
                 <Text>Home Screen</Text>
                 <Button
-                    title="Go to Details"
-                    onPress={() => navigation.navigate('Details')}
+                    title="Go to ShowTrackerWebView"
+                    onPress={() => navigation.navigate('ShowTrackerWebView')}
                 />
 
                 <Button

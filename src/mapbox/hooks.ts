@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import moment from "moment";
 import RNFS, { downloadFile, readDir } from "react-native-fs"
-import { IP, segmentsIntersect, isFinishLinePassed, defaultRLDATAPath, msg, formatMS } from "../libs";
+import { ServerIP, segmentsIntersect, isFinishLinePassed, defaultRLDATAPath, msg, formatMS } from "../libs";
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { useImmer } from "use-immer";
 import { useMount } from "ahooks"

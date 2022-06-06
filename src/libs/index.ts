@@ -25,8 +25,19 @@ export type GPSPOSTION = {
 }
 
 
-//const IP = "http://192.168.4.1";
-const IP = "http://192.168.3.21";
+let HttpWebIP;
+let ServerIP;
+if (__DEV__) {
+    HttpWebIP = "//172.19.3.37:8881";
+    ServerIP = "http://172.19.3.48";
+} else {
+    HttpWebIP = "http://192.168.3.21:8001";
+    ServerIP = "http://192.168.4.1"
+}
+
+// const HttpWebIP = "http://192.168.3.21:8001";
+// const ServerIP = "http://172.19.3.48";
+//const ServerIP = "http://192.168.4.1";
 
 //const IP = "http://172.19.3.39";
 
@@ -46,9 +57,13 @@ function formatMS(msTime: number) {
 
 
 
+console.log("RaceLap init __DEV__", __DEV__);
+
 export {
-    wgstogcj, rnfile, gcj02towgs84, UTCOFFSET, IP, segmentsIntersect, isFinishLinePassed, msg, MapboxAccessToken,
+    wgstogcj, rnfile, gcj02towgs84, UTCOFFSET, ServerIP, segmentsIntersect, isFinishLinePassed, msg, MapboxAccessToken,
     defaultFSPath,
     defaultRLDATAPath,
     formatMS,
+    HttpWebIP
+
 }
