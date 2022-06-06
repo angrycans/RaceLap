@@ -31,7 +31,7 @@ if (__DEV__) {
     HttpWebIP = "//172.19.3.37:8881";
     ServerIP = "http://172.19.3.48";
 } else {
-    HttpWebIP = "http://192.168.3.21:8001";
+    HttpWebIP = "./web.bundle/showsession/index.html";
     ServerIP = "http://192.168.4.1"
 }
 
