@@ -1,6 +1,11 @@
-import React from 'react';
-import logo from './logo.svg';
+
+import React, { useRef, useEffect, useState } from 'react';
+
+
 import './App.css';
+import mapboxgl from 'mapbox-gl';
+
+const MapboxAccessToken = "pk.eyJ1IjoiYW5ncnljYW5zIiwiYSI6ImNsMm8ycXdwdzAxeTczY204cXJ5ajBzeXEifQ.6Ln8QhR1LGdJC7YLjdZXsQ";
 
 function App() {
   return (

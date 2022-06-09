@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
         //iconImage: exampleIcon,
     },
     lineLayer: {
-        lineColor: 'black',
+        lineColor: 'blue',
         lineCap: 'round',
         lineJoin: 'round',
         lineWidth: 4,

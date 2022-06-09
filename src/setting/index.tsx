@@ -9,7 +9,7 @@ import { HttpWebIP } from '../libs'
 const ShowTrackerWebView = () => {
 
     return (
-        <WebView source={{ uri: './web.bundle/showsession/index.html' }}
+        <WebView source={{ uri: HttpWebIP + "/track.html" }}
             allowFileAccess={true}
             javaScriptEnabled={true}
             decelerationRate='normal'

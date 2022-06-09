@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ListItem, Avatar, TabView, Tab, Button, hstack } from '@rneui/themed'
 
@@ -78,124 +78,129 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
           />
 
         </Tab>
+
         <TabView value={this.props.tabIndx} onChange={this.props.actions.changeTab} disableSwipe={true} animationType="spring">
           <TabView.Item style={{ backgroundColor: 'white', width: '100%' }}>
-            <View>
-              {
-                this.props?.localfiles?.map((item, i) => {
-                  return (
-                    <ListItem.Swipeable
-                      key={i}
-                      onPress={() => {
-                        // console.log("on press");
-                        if (item.isserver) {
-                          this.props.actions.downLocalFilefromserver(item);
-                        } else {
-                          console.log("navgtion", item.name.indexOf("RL"));
-                          if (item.name.indexOf("RL") >= 0) {
-                            navigation.navigate('MapBoxApp', { name: item.name });
+            <ScrollView>
+              <View>
+                {
+                  this.props?.localfiles?.map((item, i) => {
+                    return (
+                      <ListItem.Swipeable
+                        key={i}
+                        onPress={() => {
+                          // console.log("on press");
+                          if (item.isserver) {
+                            this.props.actions.downLocalFilefromserver(item);
                           } else {
+                            console.log("navgtion", item.name.indexOf("RL"));
+                            if (item.name.indexOf("RL") >= 0) {
+                              navigation.navigate('MapBoxApp', { name: item.name });
+                            } else {
 
-                            navigation.navigate('ViewTxtScreen', { name: item.name });
-                          }
-                        }
-
-                      }}
-
-                      rightContent={!item.isserver ? (reset) => (
-                        <View style={styles.rightview}>
-                          <Button
-                            title=""
-                            onPress={async () => {
                               navigation.navigate('ViewTxtScreen', { name: item.name });
-                              reset()
                             }
-                            }
-                            icon={{ name: 'info', color: 'white' }}
-                            buttonStyle={{ minHeight: '100%', backgroundColor: 'blue' }}
-                          />
+                          }
+
+                        }}
+
+                        rightContent={!item.isserver ? (reset) => (
+                          <View style={styles.rightview}>
+                            <Button
+                              title=""
+                              onPress={async () => {
+                                navigation.navigate('ViewTxtScreen', { name: item.name });
+                                reset()
+                              }
+                              }
+                              icon={{ name: 'info', color: 'white' }}
+                              buttonStyle={{ minHeight: '100%', backgroundColor: 'blue' }}
+                            />
+                            <Button
+                              title=""
+                              onPress={async () => {
+                                await this.props.actions.delfilefromlocal(item);
+                                reset()
+                              }
+                              }
+                              icon={{ name: 'delete', color: 'white' }}
+                              buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
+                            /></View>
+                        ) : null}
+
+
+                      >
+
+                        <ListItem.Content>
+                          <ListItem.Title>{item.name}</ListItem.Title>
+
+                        </ListItem.Content>
+                        <Text>{filesize(item.size)}</Text>
+                        {item.isserver && item.progress == 0 ? < Button color="secondary" loading={item.progress != 100 && item.isserver}></Button> : null}
+
+                        <ListItem.Chevron />
+                      </ListItem.Swipeable>
+                    )
+                  })
+                }
+              </View>
+            </ScrollView>
+          </TabView.Item>
+          <TabView.Item style={{ backgroundColor: 'white', width: '100%' }}>
+            <ScrollView>
+              <View>
+                {
+                  this.props?.serverfiles.map((item, i) => {
+                    //let item = l.split("_");
+
+                    return (
+
+                      <ListItem.Swipeable
+                        key={i}
+                        // onPress={() => {
+                        //   console.log("on press");
+                        // }}
+
+                        onSwipeBegin={() => {
+                          if (item[0] == "/RLDATA/log.txt" || item[0] == "/RLDATA/track.txt") {
+                            console.log("onswipebeging");
+                            // return;
+                          }
+                        }}
+
+                        rightContent={(reset) => (
                           <Button
-                            title=""
+                            title="Delete"
                             onPress={async () => {
-                              await this.props.actions.delfilefromlocal(item);
+                              if (item[0] == "/RLDATA/log.txt" || item[0] == "/RLDATA/track.txt") {
+
+                              } else {
+                                await this.props.actions.delfile(item[0]);
+                              }
+
                               reset()
                             }
                             }
                             icon={{ name: 'delete', color: 'white' }}
                             buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
-                          /></View>
-                      ) : null}
+                          />
+                        )}
 
+                      >
 
-                    >
+                        <ListItem.Content>
+                          <ListItem.Title>{item[0]}</ListItem.Title>
 
-                      <ListItem.Content>
-                        <ListItem.Title>{item.name}</ListItem.Title>
+                        </ListItem.Content>
+                        <Text>{filesize(item[1])}</Text>
+                        <ListItem.Chevron />
 
-                      </ListItem.Content>
-                      <Text>{filesize(item.size)}</Text>
-                      {item.isserver && item.progress == 0 ? < Button color="secondary" loading={item.progress != 100 && item.isserver}></Button> : null}
-
-                      <ListItem.Chevron />
-                    </ListItem.Swipeable>
-                  )
-                })
-              }
-            </View>
-          </TabView.Item>
-          <TabView.Item style={{ backgroundColor: 'white', width: '100%' }}>
-            <View>
-              {
-                this.props?.serverfiles.map((item, i) => {
-                  //let item = l.split("_");
-
-                  return (
-
-                    <ListItem.Swipeable
-                      key={i}
-                      // onPress={() => {
-                      //   console.log("on press");
-                      // }}
-
-                      onSwipeBegin={() => {
-                        if (item[0] == "/RLDATA/log.txt" || item[0] == "/RLDATA/track.txt") {
-                          console.log("onswipebeging");
-                          // return;
-                        }
-                      }}
-
-                      rightContent={(reset) => (
-                        <Button
-                          title="Delete"
-                          onPress={async () => {
-                            if (item[0] == "/RLDATA/log.txt" || item[0] == "/RLDATA/track.txt") {
-
-                            } else {
-                              await this.props.actions.delfile(item[0]);
-                            }
-
-                            reset()
-                          }
-                          }
-                          icon={{ name: 'delete', color: 'white' }}
-                          buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
-                        />
-                      )}
-
-                    >
-
-                      <ListItem.Content>
-                        <ListItem.Title>{item[0]}</ListItem.Title>
-
-                      </ListItem.Content>
-                      <Text>{filesize(item[1])}</Text>
-                      <ListItem.Chevron />
-
-                    </ListItem.Swipeable>
-                  )
-                })
-              }
-            </View>
+                      </ListItem.Swipeable>
+                    )
+                  })
+                }
+              </View>
+            </ScrollView>
           </TabView.Item>
         </TabView>
 

@@ -46,10 +46,10 @@ let LapJson = {
 };
 
 
-let LapIdx2 = -1
+//let LapIdx2 = -1
 
 function useTrackHook() {
-  const [trackSession, setTrackSession] = useImmer({ LapIdx2, finishlineJson, sessionJosn, trackJosn, LapJson });
+  const [trackSession, setTrackSession] = useImmer({ LapIdx2: -1, finishlineJson, sessionJosn, trackJosn, LapJson });
   const route = useRoute<RouteProp<{ params: { name: string } }>>();
 
   useEffect(() => {
@@ -145,11 +145,11 @@ function getLap() {
         if (lastdatetime != 0) {
           //console.log("laptimer ", +pos[5] - lastdatetime, formatMS(+pos[5] - lastdatetime));
 
-          tmplap.push({ prv: prev_idx, idx, timer: +pos[5] - lastdatetime, maxspeed });
+          tmplap.push({ prv: prev_idx, idx, timer: +pos[6] - lastdatetime, maxspeed });
 
           maxspeed = 0;
         }
-        lastdatetime = +pos[5];
+        lastdatetime = +pos[6];
         prev_idx = idx;
       }
     }
