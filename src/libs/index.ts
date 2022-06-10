@@ -5,6 +5,7 @@ import { segmentsIntersect, isFinishLinePassed } from './gpsutils'
 import mitt from 'mitt'
 import RNFS from 'react-native-fs';
 import { Platform, PermissionsAndroid } from 'react-native';
+import tfetch from './fetchtimeout'
 
 import { ListItem, Avatar, TabView, Tab, Button } from '@rneui/themed'
 
@@ -28,10 +29,10 @@ export type GPSPOSTION = {
 let HttpWebIP;
 let ServerIP;
 if (__DEV__) {
-    HttpWebIP = "//172.19.3.37:8881";
+    HttpWebIP = "http://172.19.3.17:3000";
     ServerIP = "http://172.19.3.48";
 } else {
-    HttpWebIP = "./web.bundle/showsession/index.html";
+    HttpWebIP = "./web.bundle/showsession/";
     ServerIP = "http://192.168.4.1"
 }
 
@@ -64,6 +65,7 @@ export {
     defaultFSPath,
     defaultRLDATAPath,
     formatMS,
-    HttpWebIP
+    HttpWebIP,
+    tfetch
 
 }

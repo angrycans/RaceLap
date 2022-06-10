@@ -3,13 +3,13 @@ import MapboxGL from '@rnmapbox/maps';
 import { StyleSheet, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
-import { HttpWebIP } from '../libs'
+import { ServerIP } from '../libs'
 
 // ...
-const ShowTrackerWebView = () => {
-
+const ShowSetting = () => {
+    console.log(ServerIP + "/track.html");
     return (
-        <WebView source={{ uri: HttpWebIP + "/track.html" }}
+        <WebView source={{ uri: ServerIP + "/track.html" }}
             allowFileAccess={true}
             javaScriptEnabled={true}
             decelerationRate='normal'
@@ -17,7 +17,7 @@ const ShowTrackerWebView = () => {
             useWebKit={true}
             mediaPlaybackRequiresUserAction={true}
             mixedContentMode="compatibility"
-            originWhitelist={["file://"]}
+            //originWhitelist={["file://"]}
             allowingReadAccessToURL="*"
 
         />
@@ -27,4 +27,4 @@ const ShowTrackerWebView = () => {
 }
 
 
-export default ShowTrackerWebView;
+export default ShowSetting;

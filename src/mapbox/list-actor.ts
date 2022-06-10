@@ -4,7 +4,7 @@ import { produce } from "immer";
 import moment from "moment";
 import RNFS, { downloadFile, readDir } from "react-native-fs"
 
-import { ServerIP, segmentsIntersect, isFinishLinePassed, defaultRLDATAPath, msg } from "../libs";
+import { ServerIP, segmentsIntersect, isFinishLinePassed, defaultRLDATAPath, msg, tfetch } from "../libs";
 
 function file_size(bytes: number) {
   let fsize: string = "";
@@ -26,7 +26,7 @@ const listActor = (store: IStore<IState>) => ({
     console.log("list listfile");
     let ret;
     try {
-      const response = await fetch(
+      const response = await tfetch(
         ServerIP + '/listsdjson'
       );
       ret = await response.text();
@@ -60,7 +60,7 @@ const listActor = (store: IStore<IState>) => ({
   /** get file list*/
   downfile: async (filename) => {
     console.log("list init");
-    const response = await fetch(
+    const response = await tfetch(
       ServerIP + '/down?file=' + filename
     );
     const ret = await response.text();
@@ -205,7 +205,7 @@ const listActor = (store: IStore<IState>) => ({
   delfile: async (filename) => {
     console.log("delfile ....", filename);
 
-    const response = await fetch(
+    const response = await tfetch(
       ServerIP + '/del?file=' + filename
     );
     const ret = await response.json();

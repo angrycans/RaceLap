@@ -17,8 +17,7 @@ import { msg, MapboxAccessToken, formatMS } from '../libs'
 import { ListItem, Icon, Avatar, TabView, Tab, Button, Text } from '@rneui/themed'
 import { Animated as RNAnimated } from 'react-native';
 import length from '@turf/length';
-import { point, lineString } from '@turf/helpers';
-
+import { lineString } from '@turf/helpers';
 
 import { useTrackHook } from "./hooks"
 import exampleIcon from './pin.png';
@@ -37,63 +36,74 @@ const AnnotationContent = () => (
     </View>
 );
 
+let _anim;
+let _animatedValue;
+let _currentDistance = 10;
+const tick = () => {
+    _anim = RNAnimated.timing(_animatedValue, {
+        toValue: _currentDistance,
+        duration: 5,
+        useNativeDriver: false,
+    });
+
+    _anim.start(() => {
+
+
+    });
+}
+
 const MapBoxAppScreen = () => {
+    // console.log("route", route);
+    let updateAltitudeInterval = useRef();
+    let [animatedRoute, setAnimatedRoute] = useState(null);
 
-    const [expanded, setExpanded] = useState(true)
-    const { trackSession, setTrackSession } = useTrackHook();
-    const { finishlineJson, sessionJosn, sessionData, trackJosn, LapJson, LapIdx2, routeJson, actPoint, actPointIdx } = trackSession;
-    const timerId = useRef(null);
-    //console.log("useTrack ", finishlineJson, sessionJosn, trackJosn, LapJson);
-    // console.log("sessionJosn ", sessionJosn);
-    // console.log("trackJosn ", trackJosn);
-    // console.log("finishlineJson ", finishlineJson);
-    // console.log("LapJson ", LapJson);
-    // console.log("sessionData ", sessionData);
 
-    // console.log("routeJson", routeJson);
-    // console.log("actPoint", actPoint);
-
-    //console.log("idx", idx)
+    let map = useRef();
 
     useEffect(() => {
 
+        if (sessionJosn.geometry.coordinates.length > 0) {
+
+            let pinRoute = sessionJosn.geometry.coordinates;
+
+
+            animatedRoute = new Animated.RouteCoordinatesArray(pinRoute, {
+                end: {
+                    from: length(lineString(pinRoute)),
+                },
+            });
+
+
+
+        }
+        setAnimatedRoute(animatedRoute);
+
         return () => {
-            console.log("componentWillUnmount--------")
-            clearTimeout(timerId.current);
-        }
-    }, [])
-    const tick = (_actPointIdx) => {
-
-        // console.log("LapIdx2===>", trackJosn, LapIdx2)
-        if (LapIdx2 == -1) {
-            if (_actPointIdx + 1 > sessionData.length - 1) {
-                return;
-            }
-        } else {
-            console.log("__trackJosn", _actPointIdx, LapIdx2, trackJosn, trackJosn.lap[LapIdx2].idx);
-            if (_actPointIdx + 1 > trackJosn.lap[LapIdx2].idx) {
-                return;
-            }
-        }
-
-        let ts1 = sessionData[_actPointIdx + 1].split(",");
-        let ts2 = sessionData[_actPointIdx].split(",");
-
-        let timer = ts1[6] - ts2[6];
-        //  console.log("timer", timer, _actPointIdx)
-
-        timerId.current = setTimeout(() => {
-            setTrackSession(draft => {
-                draft.actPointIdx += 1;
-                draft.actPoint = draft.sessionJosn.geometry.coordinates[draft.actPointIdx];
-                _actPointIdx = draft.actPointIdx;
-            })
+            clearInterval(updateAltitudeInterval.current);
+            updateAltitudeInterval.current = null;
+        };
+    }, []);
 
 
-            tick(_actPointIdx);
-        }, timer);
 
-    }
+
+    const [expanded, setExpanded] = useState(true)
+    const { trackSession, setTrackSession } = useTrackHook();
+    const { finishlineJson, sessionJosn, trackJosn, LapJson, LapIdx2 } = trackSession;
+    //console.log("useTrack ", finishlineJson, sessionJosn, trackJosn, LapJson);
+    console.log("sessionJosn ", sessionJosn);
+    console.log("trackJosn ", trackJosn);
+    console.log("finishlineJson ", finishlineJson);
+    console.log("LapJson ", LapJson);
+
+
+
+    //const Anim = useRef(new RNAnimated.Value(0)).current;
+
+
+
+
+
 
 
     return (
@@ -133,50 +143,71 @@ const MapBoxAppScreen = () => {
                         ))}
                     </ListItem.Accordion>
 
-                    <MapView style={styles.map} >
-                        <Camera
+                    <MapboxGL.MapView styleURL={MapboxGL.StyleURL.Light} style={styles.map} ref={map}>
+                        <MapboxGL.Camera
                             zoomLevel={18}
                             //  centerCoordinate={[12.338, 45.4385]}
                             centerCoordinate={LapIdx2 == -1 ? sessionJosn.geometry.coordinates[0] : LapJson.features[LapIdx2]?.geometry.coordinates[0]}
                         />
 
-                        {finishlineJson.geometry.coordinates.length > 0 && <ShapeSource
+                        {finishlineJson.geometry.coordinates.length > 0 && <MapboxGL.ShapeSource
                             id="source2"
                             lineMetrics={true}
                             shape={finishlineJson}
-                        ><LineLayer id="layer2" style={styles.lineLayer} />
-                        </ShapeSource>}
+                        ><MapboxGL.LineLayer id="layer2" style={styles.lineLayer} />
+                        </MapboxGL.ShapeSource>}
 
-
-
-                        <ShapeSource
+                        <MapboxGL.ShapeSource
                             id="source1"
                             lineMetrics={true}
+                            //shape={sessionJosn}
                             shape={LapIdx2 == -1 ? sessionJosn : LapJson}
                         >
-                            <LineLayer id="layer1" style={styles2.mapPinLayer2} />
+                            <MapboxGL.LineLayer id="layer1" style={styles2.mapPinLayer2} />
 
-                        </ShapeSource>
-
-
-                        {actPoint && <Animated.ShapeSource
-                            id="currentLocationSource1"
-                            shape={
-                                {
-                                    type: 'Point',
-                                    coordinates: actPoint,
-                                }
-                            }
+                        </MapboxGL.ShapeSource>
+                        {/* 
+                        <MapboxGL.ShapeSource
+                            id="mapPinsSource"
+                            shape={ddd}
+                        //  onPress={onPinPress}
                         >
-                            <Animated.CircleLayer
-                                id="currentLocationCircle"
-                                style={styles.circleLayer}
-                            />
-                        </Animated.ShapeSource>}
+                            <MapboxGL.SymbolLayer id="mapPinsLayer" style={styles2.mapPinLayer} />
+                            <MapboxGL.LineLayer id="layer3" style={styles2.mapPinLayer2} />
+                        </MapboxGL.ShapeSource> */}
 
-                        {actPoint && <AnimatedMarkerView
-                            coordinate={actPoint}
-                            anchor={{ x: 0.5, y: 0.5 }}>
+                        <MapboxGL.PointAnnotation
+                            coordinate={LapIdx2 == -1 ? sessionJosn.geometry.coordinates[0] : LapJson.features[LapIdx2]?.geometry.coordinates[0]}
+                            id="pt-ann"
+                        >
+                            <AnnotationContent />
+                        </MapboxGL.PointAnnotation>
+                        {animatedRoute && (
+                            <Animated.ShapeSource
+                                id="animated-route"
+                                shape={
+                                    new Animated.Shape({
+                                        type: 'LineString',
+                                        coordinates: animatedRoute,
+                                    })
+                                }
+                            >
+                                <Animated.LineLayer
+                                    id={'animated-route'}
+                                    style={{
+                                        lineColor: 'rgba(255,0,0,0)',
+                                        lineWidth: 3,
+                                        lineCap: 'round',
+                                        lineJoin: 'round',
+                                    }}
+                                />
+                            </Animated.ShapeSource>
+                        )}
+
+                        {<AnimatedMarkerView
+                            coordinate={LapIdx2 == -1 ? sessionJosn.geometry.coordinates[0] : LapJson.features[LapIdx2]?.geometry.coordinates[0]}
+
+                            anchor={{ x: 0.5, y: 1 }}>
                             <View style={{ alignItems: 'center' }}>
                                 <View
                                     style={{
@@ -185,49 +216,47 @@ const MapBoxAppScreen = () => {
                                         width: 60,
                                         height: 30,
                                         borderRadius: 10,
-                                        left: 50,
-                                        paddingLeft: 10
-                                        // marginLeft: 100
+                                        left: 40,
                                     }}
                                 >
-                                    <Text>{(+sessionData[actPointIdx].split(",")[4]).toFixed(1)}</Text>
+                                    <Text>Altitude: m</Text>
                                 </View>
-
+                                <View
+                                    style={[styles2.triangleStyle(6, 'white'), { marginTop: -1 }]}
+                                />
                             </View>
-                        </AnimatedMarkerView>
-                        }
+                        </AnimatedMarkerView>}
 
-                    </MapView>
+                    </MapboxGL.MapView>
 
                     <Button
                         title="Play"
                         onPress={() => {
                             console.log("play");
-                            tick(actPointIdx);
-                        }}
-                    />
-                    <Button
-                        title="stop"
-                        onPress={() => {
-                            clearTimeout(timerId.current);
-                        }}
-                    />
-                    <Button
-                        title=""
-                    />
-                    <Button
-                        title=""
-                    />
-                    <Button
-                        title=""
-                    />
+                            const ts = lineString(animatedRoute.__getValue());
+                            const total = length(ts, { units: 'meters' });
+                            const points = animatedRoute.__getValue();
+                            const endPoint = points[points.length - 1];
 
+
+                            animatedRoute
+                                .timing({
+                                    toValue: { end: { point: [118.76436783, 31.97745233], from: [118.76434117, 31.97753333] } },
+                                    duration: 20000,
+                                    easing: Easing.linear,
+                                })
+                                .start(() => {
+
+
+                                });
+                        }}
+                    />
                     <Button
-                        title="4"
+                        title=""
                     />
                 </View>
                 : <Text>File invaild</Text>}
-        </View >
+        </View>
     );
 }
 
@@ -313,15 +342,18 @@ const styles = StyleSheet.create({
         ],
 
     },
-    circleLayer: {
-        circleOpacity: 1,
-        circleColor: '#c62221',
-        circleRadius: 8,
+    touchableContainer: { borderColor: 'black', borderWidth: 0, width: 40 },
+    touchable: {
+        backgroundColor: 'blue',
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        left: 10,
+        // alignItems: 'center',
+        //justifyContent: 'center',
     },
-    lineLayerOne: {
-        lineCap: 'round',
-        lineWidth: 6,
-        lineOpacity: 0.84,
-        lineColor: '#514ccd',
+    touchableText: {
+        color: 'white',
+        fontWeight: 'bold',
     },
 }); 

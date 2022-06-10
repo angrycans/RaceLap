@@ -12,10 +12,12 @@ import HomeScreen from './src/home';
 import DetailsScreen from './src/details';
 import GeolocationService from './src/react-native-geolocation-service'
 import MapBoxAppScreen from './src/mapbox'
+import RouteAnimdemo from './src/mapbox/index_route_anim'
+
 import ListFileAppScreen from './src/mapbox/listfile'
 import ViewTxt from './src/mapbox/view-txt'
 import ShowTrackerWebView from './src/showtracker'
-
+import SettingScreen from './src/setting'
 
 
 import { msg } from './src/libs'
@@ -54,6 +56,9 @@ function App() {
           }} />
           <Stack.Screen name="ViewTxtScreen" component={ViewTxt} />
           <Stack.Screen name="ShowTrackerWebView" component={ShowTrackerWebView} />
+          <Stack.Screen name="SettingScreen" component={SettingScreen} />
+          <Stack.Screen name="RouteAnimdemo" component={RouteAnimdemo} />
+
         </Stack.Navigator>
         {/* <View>
         <VConsole />

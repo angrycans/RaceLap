@@ -7,6 +7,7 @@ import { useImmer } from "use-immer";
 import { useMount } from "ahooks"
 import { loadPartialConfig } from "@babel/core";
 
+import { Animated, MapView, Camera, ShapeSource, LineLayer } from '@rnmapbox/maps';
 
 
 let sessionData;
@@ -48,8 +49,11 @@ let LapJson = {
 
 //let LapIdx2 = -1
 
+let routeJson;
+let actPoint;
+
 function useTrackHook() {
-  const [trackSession, setTrackSession] = useImmer({ LapIdx2: -1, finishlineJson, sessionJosn, trackJosn, LapJson });
+  const [trackSession, setTrackSession] = useImmer({ LapIdx2: -1, sessionData: null, finishlineJson, sessionJosn, trackJosn, LapJson, routeJson, actPoint, actPointIdx: 0 });
   const route = useRoute<RouteProp<{ params: { name: string } }>>();
 
   useEffect(() => {
@@ -69,6 +73,7 @@ function useTrackHook() {
 
       setTrackSession(draft => {
         draft.sessionJosn.geometry.coordinates = [];
+        draft.sessionData = sessionData;
 
         sessionData.forEach(d => {
           let pos = d.split(",")
@@ -80,6 +85,11 @@ function useTrackHook() {
         draft.finishlineJson.geometry.coordinates.push([parseFloat(finishData.lng2), parseFloat(finishData.lat2)]);
 
         draft.trackJosn.lap = lap;
+
+        //设置 线路点和actpoint
+        //draft.routeJson = new Animated.RouteCoordinatesArray(draft.sessionJosn.geometry.coordinates.reverse());
+        draft.actPoint = draft.sessionJosn.geometry.coordinates[0];
+        draft.actPointIdx = 0;
 
       })
 
@@ -106,16 +116,27 @@ function useTrackHook() {
 
     let ret = loadLap(sessionData, lap[trackSession.LapIdx2].idx, lap[trackSession.LapIdx2].prv);
 
-    console.log("ret=", ret)
+    console.log("ret=", ret, lap)
 
     setTrackSession(draft => {
       draft.LapJson.features = ret;
+      draft.actPoint = ret[0].geometry.coordinates[0];
+      draft.actPointIdx = lap[trackSession.LapIdx2].prv;
 
     })
 
     // LapJson.features = ret;
 
   }, [trackSession.LapIdx2])
+
+  // useEffect(() => {
+
+  //   setTrackSession(draft => {
+  //     draft.actPointIdx += 1;
+  //     draft.actPoint = draft.sessionJosn.geometry.coordinates[draft.actPointIdx];
+  //   })
+
+  // }, [trackSession.actPointIdx])
 
 
   return { trackSession, setTrackSession };

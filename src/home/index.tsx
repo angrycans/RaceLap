@@ -45,6 +45,14 @@ class HomeScreen extends React.Component {
                     title="Go to MapBoxApp"
                     onPress={() => navigation.navigate('MapBoxApp')}
                 />
+                <Button
+                    title="Go to Setting"
+                    onPress={() => navigation.navigate('SettingScreen')}
+                />
+                <Button
+                    title="Go to RouteAnimdemo"
+                    onPress={() => navigation.navigate('RouteAnimdemo')}
+                />
             </View>
         );
     }

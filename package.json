@@ -24,6 +24,7 @@
     "@rneui/themed": "^4.0.0-rc.4",
     "@rnmapbox/maps": "github:rnmapbox/maps#main",
     "@sigmayun/react-native-vconsole": "^0.0.9",
+    "@turf/turf": "^6.5.0",
     "@voximplant/react-native-foreground-service": "^3.0.1",
     "ahooks": "^3.4.1",
     "immer": "^9.0.14",
