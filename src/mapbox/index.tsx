@@ -76,8 +76,8 @@ const MapBoxAppScreen = () => {
             }
         }
 
-        let ts1 = sessionData[_actPointIdx + 1].split(",");
-        let ts2 = sessionData[_actPointIdx].split(",");
+        let ts1 = sessionData[_actPointIdx + 1];
+        let ts2 = sessionData[_actPointIdx];
 
         let timer = ts1[6] - ts2[6];
         //  console.log("timer", timer, _actPointIdx)
@@ -182,7 +182,7 @@ const MapBoxAppScreen = () => {
                                     style={{
                                         backgroundColor: 'white',
                                         padding: 5,
-                                        width: 60,
+                                        width: 90,
                                         height: 30,
                                         borderRadius: 10,
                                         left: 50,
@@ -190,7 +190,7 @@ const MapBoxAppScreen = () => {
                                         // marginLeft: 100
                                     }}
                                 >
-                                    <Text>{(+sessionData[actPointIdx].split(",")[4]).toFixed(1)}</Text>
+                                    <Text>{(+sessionData[actPointIdx][4]).toFixed(1) + " " + sessionData[actPointIdx][7]}</Text>
                                 </View>
 
                             </View>

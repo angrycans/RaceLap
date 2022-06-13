@@ -3,9 +3,8 @@ import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-
+import VConsole from '@kafudev/react-native-vconsole'
 import { Button, lightColors, createTheme, ThemeProvider } from '@rneui/themed';
-
 
 
 import HomeScreen from './src/home';
@@ -21,6 +20,7 @@ import SettingScreen from './src/setting'
 
 
 import { msg } from './src/libs'
+
 
 const theme = createTheme({
   lightColors: {
@@ -60,10 +60,9 @@ function App() {
           <Stack.Screen name="RouteAnimdemo" component={RouteAnimdemo} />
 
         </Stack.Navigator>
-        {/* <View>
-        <VConsole />
-        <View></View>
-      </View> */}
+        <View>
+          <VConsole />
+        </View>
       </NavigationContainer>
     </ThemeProvider>
   );

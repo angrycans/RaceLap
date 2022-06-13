@@ -2,9 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import VConsole from 'vconsole';
+
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 import reportWebVitals from './reportWebVitals';
+
+const vConsole = new VConsole({ theme: 'dark' });
+
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

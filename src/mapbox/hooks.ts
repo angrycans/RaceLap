@@ -60,11 +60,41 @@ function useTrackHook() {
     ; (async () => {
 
       const txt = await RNFS.readFile(defaultRLDATAPath + route.params.name, 'utf8');
-      sessionData = txt.split("\n");
-      if (sessionData[sessionData.length - 1] == "") {
-        sessionData.pop();
+      let sessionTxt = txt.split("\n");
+      if (sessionTxt[sessionTxt.length - 1] == "") {
+        sessionTxt.pop();
       };
-      //console.log("sessionData", sessionData);
+
+      let lastItem;
+      sessionData = sessionTxt.map((_item, idx) => {
+        let item = _item.split(",");
+
+        let GForc;
+        let tmpvel;
+        let tmpMillis;
+        let vel = +item[4];
+        let ms = +item[6]
+
+        if (idx == 0) {
+          tmpvel = 1;
+          tmpMillis = 10
+        } else {
+          tmpvel = lastItem[4];
+          tmpMillis = +item[6] - lastItem[6];
+        }
+
+
+        GForc = (((vel - tmpvel) / 3.6) / (9.8 * tmpMillis / 1000)).toFixed(3);
+        //  let GForc2 = Math.sqrt(1 + Math.pow(GForc, 2)).toFixed(3);
+
+        lastItem = item;
+        // item.push(tmpMillis);
+        item.push(GForc);
+        // console.log("vel", vel, GForc)
+        console.log("v", vel, tmpvel, GForc)
+        return item;
+      })
+      console.log("sessionData==", sessionData);
       const finishTxt = await RNFS.readFile(defaultRLDATAPath + "track.txt", 'utf8');
       finishData = JSON.parse(finishTxt);
       //console.log("finishData", finishData)
@@ -75,8 +105,8 @@ function useTrackHook() {
         draft.sessionJosn.geometry.coordinates = [];
         draft.sessionData = sessionData;
 
-        sessionData.forEach(d => {
-          let pos = d.split(",")
+        sessionData.forEach(pos => {
+          // let pos = d.split(",")
           draft.sessionJosn.geometry.coordinates.push([parseFloat(pos[2]), parseFloat(pos[1])])
         });
 
@@ -155,8 +185,8 @@ function getLap() {
   //finishData = { "lat1": 32.1053905, "lng1": 118.863382, "lat2": 32.105466, "lng2": 118.8633663, "trackname": "" };
   //console.log("finishData", finishData);
 
-  sessionData.forEach((item, idx) => {
-    let pos = item.split(",");
+  sessionData.forEach((pos, idx) => {
+    //let pos = item.split(",");
 
     if (prev) {
       let isChecked = segmentsIntersect(parseFloat(pos[1]), parseFloat(pos[2]), parseFloat(prev[1]), parseFloat(prev[2]), finishData.lat1, finishData.lng1, finishData.lat2, finishData.lng2);
@@ -202,8 +232,8 @@ function groupData(data: [string], idx: number, prv: number) {
 
   //console.log("groupData start", data)
   let rawCoords = [];
-  data.forEach((rowStr, index) => {
-    const col = rowStr.split(",");
+  data.forEach((col, index) => {
+    //const col = rowStr.split(",");
 
     if (index >= prv && index <= idx) {
 
