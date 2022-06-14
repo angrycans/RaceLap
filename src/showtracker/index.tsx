@@ -1,29 +1,33 @@
-import React, { Component } from 'react';
 import MapboxGL from '@rnmapbox/maps';
 import { StyleSheet, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
+import React, { useRef, useEffect, useState } from 'react';
 
 import { HttpWebIP } from '../libs'
+
+import { useShowTrackTxtHook } from './hooks'
 
 // ...
 const ShowTrackerWebView = () => {
 
     console.log("HttpWebIP", HttpWebIP);
+    const web = useRef(null);
+    const { trackTxt, setTrackTxt } = useShowTrackTxtHook();
+
+    useEffect(() => {
+        if (trackTxt.finishTxt != "" && trackTxt.sessionTxt != "") {
+
+            let trackTxt2 = { a: "1" };
+            console.log("injectJavaScript", trackTxt2);
+
+            web.current.injectJavaScript(`window.trackTxt=${JSON.stringify(trackTxt)}`);
+        }
+
+    }, [])
 
     return (
-        __DEV__ ? <WebView source={{ uri: HttpWebIP + "/index.html" }}
-            allowFileAccess={true}
-            javaScriptEnabled={true}
-            decelerationRate='normal'
-            scrollEnabled={true}
-            useWebKit={true}
-            mediaPlaybackRequiresUserAction={true}
-            mixedContentMode="compatibility"
-            //originWhitelist={["file://"]}
-            allowingReadAccessToURL="*"
-
-        /> :
-            <WebView source={{ uri: HttpWebIP + "/show-session/index.html" }}
+        <View style={{ flex: 1 }}>
+            {__DEV__ ? <WebView source={{ uri: HttpWebIP + "index.html" }}
                 allowFileAccess={true}
                 javaScriptEnabled={true}
                 decelerationRate='normal'
@@ -31,11 +35,25 @@ const ShowTrackerWebView = () => {
                 useWebKit={true}
                 mediaPlaybackRequiresUserAction={true}
                 mixedContentMode="compatibility"
-                originWhitelist={["file://"]}
+                //originWhitelist={["file://"]}
                 allowingReadAccessToURL="*"
-
-            />
-        // <WebView source={{ uri: "./resources/index2.html" }} />
+                style={{ flex: 1 }}
+                ref={web}
+            /> :
+                <WebView source={{ uri: HttpWebIP + "index.html" }}
+                    allowFileAccess={true}
+                    javaScriptEnabled={true}
+                    decelerationRate='normal'
+                    scrollEnabled={true}
+                    useWebKit={true}
+                    mediaPlaybackRequiresUserAction={true}
+                    mixedContentMode="compatibility"
+                    originWhitelist={["file://"]}
+                    allowingReadAccessToURL="*"
+                    style={{ flex: 1 }}
+                    ref={web}
+                />}
+        </View>
     )
 
 }

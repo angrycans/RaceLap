@@ -20,7 +20,5 @@ module.exports = {
     [
       "@babel/plugin-proposal-optional-catch-binding"
     ]
-  ],
-  ignore: ['./node_modules/mapbox-gl/dist/mapbox-gl.js']
-
+  ]
 };
