@@ -38,8 +38,8 @@ function useShowTrackTxtHook() {
       draft.sessionTxt = txt;
       draft.finishTxt = finishTxt;
 
-      console.log("txt", txt);
-      console.log("finishTxt", finishTxt);
+      // console.log("txt", txt);
+      // console.log("finishTxt", finishTxt);
 
     })
 

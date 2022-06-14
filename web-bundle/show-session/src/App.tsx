@@ -3,6 +3,10 @@ import React, { useRef, useEffect, useState } from 'react';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import * as turf from "@turf/turf"
+
+import { SafeArea, Button, Space } from 'antd-mobile'
+
+
 import "./App.css"
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiYW5ncnljYW5zIiwiYSI6ImNsMm8ycXdwdzAxeTczY204cXJ5ajBzeXEifQ.6Ln8QhR1LGdJC7YLjdZXsQ';
@@ -188,11 +192,21 @@ export default function App() {
   });
 
   return (
-    <div className="map-container">
+    <div className="map-wrapper">
       <div className="sidebar">
         Lat: {lat} | Lng: {lng} | Zoom: {zoom}
       </div>
       <div ref={mapContainer} className="map-container" />
+      <div>
+        <Button block color='primary' size='large'>
+          Play
+        </Button>
+
+      </div>
+
+      <div style={{ background: '#ffffff' }}>
+        <SafeArea position='bottom' />
+      </div>
     </div>
   );
 }

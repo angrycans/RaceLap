@@ -15,10 +15,13 @@ const ShowTrackerWebView = () => {
     const { trackTxt, setTrackTxt } = useShowTrackTxtHook();
 
     useEffect(() => {
+        console.log("ShowTrackerWebView __dev__=", __DEV__)
         if (trackTxt.finishTxt != "" && trackTxt.sessionTxt != "") {
 
-            let trackTxt2 = { a: "1" };
-            console.log("injectJavaScript", trackTxt2);
+            // let trackTxt2 = { a: "1" };
+            // console.log("injectJavaScript", trackTxt2);
+
+            // console.log("StrackTxt", trackTxt)
 
             web.current.injectJavaScript(`window.trackTxt=${JSON.stringify(trackTxt)}`);
         }
