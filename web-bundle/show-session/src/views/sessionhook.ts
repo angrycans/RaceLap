@@ -47,19 +47,22 @@ let LapJson = {
 let routeJson;
 let actPoint;
 
-function useTrackHook(txt, finishTxt) {
-  const [trackSession, setTrackSession] = useImmer({ LapIdx2: -1, sessionData: null, finishlineJson, sessionJosn, trackJosn, LapJson, routeJson, actPoint, actPointIdx: 0 });
+function useTrackHook() {
+  const [trackSession, setTrackSession] = useImmer({ trackTxt: null, LapIdx2: -1, sessionData: null, finishlineJson, sessionJosn, trackJosn, LapJson, routeJson, actPoint, actPointIdx: 0 });
   //const route = useRoute<RouteProp<{ params: { name: string } }>>();
 
   useEffect(() => {
     ; (async () => {
+      console.log("usetackhook listen tracktxt", trackSession.trackTxt)
+      if (!trackSession.trackTxt) return;
 
-      //const txt = await RNFS.readFile(defaultRLDATAPath + route.params.name, 'utf8');
-      let sessionTxt = txt.split("\n");
-      if (sessionTxt[sessionTxt.length - 1] == "") {
+      let sessionTxt = trackSession.trackTxt.sessionTxt.split("\n");
+      if (sessionTxt[sessionTxt.length - 1] === "") {
         sessionTxt.pop();
       };
+      // console.log("sessionText", sessionTxt);
 
+      // let sessionTxt = trackSession.trackTxt.sessionTxt;
       let lastItem;
       sessionData = sessionTxt.map((_item, idx) => {
         let item = _item.split(",");
@@ -68,7 +71,7 @@ function useTrackHook(txt, finishTxt) {
         let tmpvel;
         let tmpMillis;
         let vel = +item[4];
-        let ms = +item[6]
+        //let ms = +item[6]
 
         if (idx == 0) {
           tmpvel = 1;
@@ -77,8 +80,6 @@ function useTrackHook(txt, finishTxt) {
           tmpvel = lastItem[4];
           tmpMillis = +item[6] - lastItem[6];
         }
-
-
         GForc = (((vel - tmpvel) / 3.6) / (9.8 * tmpMillis / 1000)).toFixed(3);
         //  let GForc2 = Math.sqrt(1 + Math.pow(GForc, 2)).toFixed(3);
 
@@ -86,11 +87,12 @@ function useTrackHook(txt, finishTxt) {
         // item.push(tmpMillis);
         item.push(GForc);
         // console.log("vel", vel, GForc)
-        console.log("v", vel, tmpvel, GForc)
+        // console.log("v", vel, tmpvel, GForc)
         return item;
       })
       console.log("sessionData==", sessionData);
       // const finishTxt = await RNFS.readFile(defaultRLDATAPath + "track.txt", 'utf8');
+      let finishTxt = trackSession.trackTxt.finishTxt;
       finishData = JSON.parse(finishTxt);
       //console.log("finishData", finishData)
       let lap = getLap();
@@ -124,12 +126,11 @@ function useTrackHook(txt, finishTxt) {
     return () => {
 
     }
-  }, [])
+  }, [trackSession.trackTxt])
 
   useEffect(() => {
 
-
-    console.log("useEffect2 ", trackSession.LapIdx2);
+    console.log("useEffect  listen trackSession.LapIdx2 ", trackSession.LapIdx2);
     if (trackSession.LapIdx2 == -1) {
       return;
     }
@@ -186,7 +187,7 @@ function getLap() {
     if (prev) {
       let isChecked = segmentsIntersect(parseFloat(pos[1]), parseFloat(pos[2]), parseFloat(prev[1]), parseFloat(prev[2]), finishData.lat1, finishData.lng1, finishData.lat2, finishData.lng2);
       if (isChecked) {
-        console.log("isChecked ", pos, prev, idx);
+        // console.log("isChecked ", pos, prev, idx);
 
         if (lastdatetime != 0) {
           //console.log("laptimer ", +pos[5] - lastdatetime, formatMS(+pos[5] - lastdatetime));
@@ -307,6 +308,8 @@ function loadLap(data: [string], idx: number, prev: number) {
     }
   }));
 }
+
+
 
 
 

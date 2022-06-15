@@ -11,26 +11,33 @@ import { useShowTrackTxtHook } from './hooks'
 const ShowTrackerWebView = () => {
 
     console.log("HttpWebIP", HttpWebIP);
+
+    function onMessage(data) {
+        console.log("onMessage", data.nativeEvent.data);
+    }
+
+    function sendMsg2Web(key: string, data: any) {
+        // console.log("onMessage", data.nativeEvent.data);
+        //let a = { a: 123 };
+        web.current.injectJavaScript(`RNMsg.emit("${key}",${JSON.stringify(data)})`);
+    }
+
     const web = useRef(null);
     const { trackTxt, setTrackTxt } = useShowTrackTxtHook();
-
     useEffect(() => {
         console.log("ShowTrackerWebView __dev__=", __DEV__)
         if (trackTxt.finishTxt != "" && trackTxt.sessionTxt != "") {
-
-            // let trackTxt2 = { a: "1" };
-            // console.log("injectJavaScript", trackTxt2);
-
-            // console.log("StrackTxt", trackTxt)
-
-            web.current.injectJavaScript(`window.trackTxt=${JSON.stringify(trackTxt)}`);
+            console.log("injectJavaScript", trackTxt);
+            // let a = 12345;
+            // web.current.injectJavaScript(`RNMessage(window.trackTxt=${JSON.stringify(trackTxt)});true;`);
+            // web.current.injectJavaScript(`console.log("msg1=>",msg);msg.emit('rnmsg',${a})`);
+            // web.current.postMessage('Data from React Native App');
+            sendMsg2Web("trackTxt", trackTxt);
         }
-
-    }, [])
-
+    }, [trackTxt])
     return (
         <View style={{ flex: 1 }}>
-            {__DEV__ ? <WebView source={{ uri: HttpWebIP + "index.html" }}
+            <WebView source={{ uri: HttpWebIP + "index.html" }}
                 allowFileAccess={true}
                 javaScriptEnabled={true}
                 decelerationRate='normal'
@@ -38,24 +45,13 @@ const ShowTrackerWebView = () => {
                 useWebKit={true}
                 mediaPlaybackRequiresUserAction={true}
                 mixedContentMode="compatibility"
-                //originWhitelist={["file://"]}
+                originWhitelist={__DEV__ ? ['https://', 'http://'] : ["file://"]}//{["file://"]}
                 allowingReadAccessToURL="*"
                 style={{ flex: 1 }}
                 ref={web}
-            /> :
-                <WebView source={{ uri: HttpWebIP + "index.html" }}
-                    allowFileAccess={true}
-                    javaScriptEnabled={true}
-                    decelerationRate='normal'
-                    scrollEnabled={true}
-                    useWebKit={true}
-                    mediaPlaybackRequiresUserAction={true}
-                    mixedContentMode="compatibility"
-                    originWhitelist={["file://"]}
-                    allowingReadAccessToURL="*"
-                    style={{ flex: 1 }}
-                    ref={web}
-                />}
+                onMessage={onMessage}
+            //injectJavaScript={`alert("");window.__DEV__=${__DEV__}`}
+            />
         </View>
     )
 

@@ -1,9 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+
+
 //import './index.css';
-import App from './App';
+//import App from './App';
+import SessionScreen from './views/session';
+
+
 import 'mapbox-gl/dist/mapbox-gl.css';
 import VConsole from 'vconsole';
+
 
 //import reportWebVitals from './reportWebVitals';
 const vConsole = new VConsole({ theme: 'dark' });
@@ -13,7 +19,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <SessionScreen />
   </React.StrictMode>
 );
 
