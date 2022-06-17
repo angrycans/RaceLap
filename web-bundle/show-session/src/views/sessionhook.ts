@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import moment from "moment";
 import { segmentsIntersect, isFinishLinePassed, msg, formatMS } from "../libs";
 import { useImmer } from "use-immer";
+import { InteractionManager } from "react-native";
 
 
 
@@ -56,41 +57,48 @@ function useTrackHook() {
       console.log("usetackhook listen tracktxt", trackSession.trackTxt)
       if (!trackSession.trackTxt) return;
 
-      let sessionTxt = trackSession.trackTxt.sessionTxt.split("\n");
+      let sessionTxt = trackSession.trackTxt.sessionTxt.split("\r\n");
       if (sessionTxt[sessionTxt.length - 1] === "") {
         sessionTxt.pop();
       };
-      // console.log("sessionText", sessionTxt);
 
-      // let sessionTxt = trackSession.trackTxt.sessionTxt;
       let lastItem;
-      sessionData = sessionTxt.map((_item, idx) => {
-        let item = _item.split(",");
+
+      // sessionData = sessionTxt.map((_item, idx) => {
+      sessionData = [];
+      for (let idx = 0; idx < sessionTxt.length; idx++) {
+        let item = sessionTxt[idx].split(",");
 
         let GForc;
         let tmpvel;
         let tmpMillis;
         let vel = +item[4];
-        //let ms = +item[6]
+
+        let ms = 0
 
         if (idx == 0) {
-          tmpvel = 1;
+          tmpvel = item[4];
           tmpMillis = 10
         } else {
           tmpvel = lastItem[4];
           tmpMillis = +item[6] - lastItem[6];
-        }
-        GForc = (((vel - tmpvel) / 3.6) / (9.8 * tmpMillis / 1000)).toFixed(3);
-        //  let GForc2 = Math.sqrt(1 + Math.pow(GForc, 2)).toFixed(3);
 
+        }
+        if (idx === sessionTxt.length - 1) {
+          ms = 0;
+        } else {
+          let nexitem = sessionTxt[idx + 1].split(",");
+          ms = nexitem[6] - item[6]
+
+        }
+        GForc = (((vel - tmpvel) / 3.6) / (9.8 * tmpMillis / 1000)).toFixed(2);
         lastItem = item;
-        // item.push(tmpMillis);
         item.push(GForc);
-        // console.log("vel", vel, GForc)
-        // console.log("v", vel, tmpvel, GForc)
-        return item;
-      })
-      console.log("sessionData==", sessionData);
+        item.push(ms);
+        //return item;
+        sessionData.push(item);
+      }
+      console.log("sessionData==", sessionData[0], sessionData[1], sessionData[sessionData.length - 1]);
       // const finishTxt = await RNFS.readFile(defaultRLDATAPath + "track.txt", 'utf8');
       let finishTxt = trackSession.trackTxt.finishTxt;
       finishData = JSON.parse(finishTxt);
@@ -142,7 +150,7 @@ function useTrackHook() {
 
     let ret = loadLap(sessionData, lap[trackSession.LapIdx2].idx, lap[trackSession.LapIdx2].prv);
 
-    console.log("ret=", ret, lap)
+    //console.log("ret=", ret, lap)
 
     setTrackSession(draft => {
       draft.LapJson.features = ret;
