@@ -12,7 +12,7 @@ import VConsole from 'vconsole';
 
 
 //import reportWebVitals from './reportWebVitals';
-const vConsole = new VConsole({ theme: 'dark' });
+//const vConsole = new VConsole({ theme: 'dark' });
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

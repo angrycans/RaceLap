@@ -1,6 +1,6 @@
 import * as turf from '@turf/turf'
 
-function tick(_sessionData, _lapIdx, _trackJosn, _route, _map, _marker, _popup) {
+function tick(_sessionData, _lapIdx, _trackJosn, _route, _map, _marker, _popup, _panto = true) {
 
   let aniIdx = 0;
   let start = 0;
@@ -97,7 +97,9 @@ function tick(_sessionData, _lapIdx, _trackJosn, _route, _map, _marker, _popup) 
     // Update the popup altitude value and marker location
     _popup.setHTML(_sessionData[aniIdx_session][4] + ' ' + _sessionData[aniIdx_session][7]);
     _marker.setLngLat(lngLat);
-    _map.panTo(lngLat);
+    _panto && _map.panTo(lngLat, { animate: true, duration: 10 });
+    //_panto && _map.jumpTo(lngLat);
+    //_map.jumpTo(lngLat);
 
     // _setTrackSession(draft => {
     //   draft.actPoint = alongPath;

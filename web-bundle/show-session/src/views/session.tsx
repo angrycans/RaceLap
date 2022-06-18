@@ -16,6 +16,7 @@ import { tick } from './tick';
 mapboxgl.accessToken = 'pk.eyJ1IjoiYW5ncnljYW5zIiwiYSI6ImNsMm8ycXdwdzAxeTczY204cXJ5ajBzeXEifQ.6Ln8QhR1LGdJC7YLjdZXsQ';
 
 var _tick;
+var _tick2;
 
 export default function App() {
   const mapContainer = useRef(null);
@@ -24,7 +25,7 @@ export default function App() {
   const popup = useRef(null);
   const marker2 = useRef(null);
   const popup2 = useRef(null);
-  const [expanded, setExpanded] = useState("1")
+  const [expanded, setExpanded] = useState("")
   const [lng, setLng] = useState(0);
   const [lat, setLat] = useState(0);
   const [zoom, setZoom] = useState(17);
@@ -33,8 +34,6 @@ export default function App() {
 
 
   const { finishlineJson, sessionJosn, sessionData, trackJosn, LapJson, LapIdx, routeJson, actPoint, actPointIdx } = trackSession;
-  //const { finishlineJson2, sessionJosn2, sessionData2, trackJosn2, LapJson2, LapIdx2, routeJson2, actPoint2, actPointIdx2 } = trackSession2;
-
 
   //console.log("render trackSession", trackSession);
 
@@ -70,6 +69,11 @@ export default function App() {
     _tick = tick(sessionData, LapIdx, trackJosn, routeJson, map.current, marker.current, popup.current);
   }
 
+  if (trackSession2 && trackSession2.routeJson?.length > 0 && marker2.current && !_tick2) {
+    console.log("new tick", trackSession)
+    _tick2 = tick(sessionData, trackSession2.LapIdx, trackJosn, trackSession2.routeJson, map.current, marker2.current, popup2.current, false);
+  }
+
   return (
     <div className="map-wrapper">
       <div className='info-warp'>
@@ -97,6 +101,7 @@ export default function App() {
                     draft.trackSession.LapIdx = parseInt(v[0]);
                   })
                 } else {
+                  console.log("remove track 1", v[0]);
                   await setTrackSession(draft => {
                     draft.trackSession.LapIdx = -1;
                   })
@@ -104,6 +109,15 @@ export default function App() {
 
                 if (v[1]) {
                   console.log("add track 2", v[1]);
+                  await setTrackSession(draft => {
+                    draft.trackSession2.LapIdx = parseInt(v[1]);
+                  })
+                } else {
+                  console.log("remove track 2", v[1]);
+                  //debugger
+                  await setTrackSession(draft => {
+                    draft.trackSession2.LapIdx = null;
+                  })
                 }
 
 
@@ -147,7 +161,11 @@ export default function App() {
           console.log("play---");
           console.log("trackSession", trackSession)
           if (trackSession.LapIdx > -1) {
-            _tick.play();
+            _tick && _tick.play();
+
+          }
+          if (trackSession2.LapIdx != null) {
+            _tick2 && _tick2.play();
           }
 
         }}>
@@ -156,11 +174,15 @@ export default function App() {
         <Button block color='primary' size='large' onClick={() => {
           console.log("pause---")
           if (trackSession.LapIdx > -1) {
-            _tick.pause();
+            _tick && _tick.pause();
+
+          }
+          if (_tick2) {
+            _tick2.pause();
           }
 
         }}>
-          pause
+          Pause
         </Button>
       </div>
 

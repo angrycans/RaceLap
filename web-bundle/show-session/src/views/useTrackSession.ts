@@ -43,70 +43,24 @@ let LapJson = {
 };
 
 
-//let LapIdx = -1
-
-let routeJson;
-let actPoint;
 
 function useTrackSession(_map, _marker, _popup, _marker2, _popup2) {
 
-  console.log("useTrackSession init----")
-  const [MtrackSession, setTrackSession] = useImmer({ trackSession: { trackTxt: null, LapIdx: -1, sessionData: null, finishlineJson, sessionJosn, trackJosn, LapJson, routeJson, actPoint, actPointIdx: 0 }, trackSession2: { trackTxt: null, LapIdx: -1, sessionData: null, finishlineJson, sessionJosn, trackJosn, LapJson, routeJson, actPoint, actPointIdx: 0 } });
+
+  const [MtrackSession, setTrackSession] = useImmer({ trackSession: { trackTxt: null, LapIdx: -1, sessionData: null, finishlineJson, sessionJosn, trackJosn, LapJson, routeJson: null, actPoint: null, actPointIdx: 0 }, trackSession2: { trackTxt: null, LapIdx: null, sessionData: null, finishlineJson, sessionJosn, trackJosn, LapJson, routeJson: null, actPoint: null, actPointIdx: 0 } });
   //const route = useRoute<RouteProp<{ params: { name: string } }>>();
   const { trackSession, trackSession2 } = MtrackSession;
   useEffect(() => {
     ; (async () => {
-      console.log("usetackhook listen tracktxt", trackSession.trackTxt)
-      if (!trackSession.trackTxt) return;
+      console.log("useTrackSession init----")
+      console.log("useTrackSession listen tracktxt", trackSession.trackTxt)
 
-      let sessionTxt = trackSession.trackTxt.sessionTxt.split("\r\n");
-      if (sessionTxt[sessionTxt.length - 1] === "") {
-        sessionTxt.pop();
-      };
-
-      let lastItem;
-
-      // sessionData = sessionTxt.map((_item, idx) => {
-      sessionData = [];
-      for (let idx = 0; idx < sessionTxt.length; idx++) {
-        let item = sessionTxt[idx].split(",");
-
-        let GForc;
-        let tmpvel;
-        let tmpMillis;
-        let vel = +item[4];
-
-        let ms = 0
-
-        if (idx == 0) {
-          tmpvel = item[4];
-          tmpMillis = 10
-        } else {
-          tmpvel = lastItem[4];
-          tmpMillis = +item[6] - lastItem[6];
-
-        }
-        if (idx === sessionTxt.length - 1) {
-          ms = 0;
-        } else {
-          let nexitem = sessionTxt[idx + 1].split(",");
-          ms = nexitem[6] - item[6]
-
-        }
-        GForc = (((vel - tmpvel) / 3.6) / (9.8 * tmpMillis / 1000)).toFixed(2);
-        lastItem = item;
-        item.push(GForc);
-        item.push(ms);
-        //return item;
-        sessionData.push(item);
+      if (!trackSession.trackTxt) {
+        console.log("useTrackSession listen tracktxt is null return")
+        return;
       }
-      // console.log("sessionData==", sessionData[0], sessionData[1], sessionData[sessionData.length - 1]);
-      // const finishTxt = await RNFS.readFile(defaultRLDATAPath + "track.txt", 'utf8');
-      let finishTxt = trackSession.trackTxt.finishTxt;
-      finishData = JSON.parse(finishTxt);
-      //console.log("finishData", finishData)
-      let lap = getLap();
-      // console.log("lap", lap)
+
+      let { lap, sessionData, finishData } = getSessionFromTxt(trackSession.trackTxt);
 
       setTrackSession(draft => {
 
@@ -129,6 +83,7 @@ function useTrackSession(_map, _marker, _popup, _marker2, _popup2) {
         draft.trackSession.actPoint = draft.trackSession.sessionJosn.geometry.coordinates[0];
         draft.trackSession.actPointIdx = 0;
 
+
         _map.current && _map.current.panTo(draft.trackSession.actPoint);
         _marker.current && _marker.current.setLngLat(draft.trackSession.actPoint);
         _popup.current && _popup.current.setHTML(sessionData[draft.trackSession.actPointIdx][4] + ' ' + sessionData[draft.trackSession.actPointIdx][7]);
@@ -141,7 +96,9 @@ function useTrackSession(_map, _marker, _popup, _marker2, _popup2) {
     return () => {
 
     }
-  }, [trackSession.trackTxt])
+  }, [trackSession.trackTxt, trackSession2.trackTxt])
+
+
 
   useEffect(() => {
 
@@ -162,7 +119,7 @@ function useTrackSession(_map, _marker, _popup, _marker2, _popup2) {
         //  draft.LapJson.features = null;
         _map.current && _map.current.panTo(draft.trackSession.actPoint);
         _marker.current && _marker.current.setLngLat(draft.trackSession.actPoint);
-        _popup.current && _popup.current.setHTML(sessionData[draft.trackSession.actPointIdx][4] + ' ' + sessionData[draft.trackSession.actPointIdx][7]);
+        _popup.current && _popup.current.setHTML(draft.trackSession.sessionData[draft.trackSession.actPointIdx][4] + ' ' + draft.trackSession.sessionData[draft.trackSession.actPointIdx][7]);
 
         //_map.current.reload
       })
@@ -175,10 +132,10 @@ function useTrackSession(_map, _marker, _popup, _marker2, _popup2) {
 
       //console.log("lap[trackSession.LapIdx].idx, lap[trackSession.LapIdx].prv", lap[trackSession.LapIdx].idx, lap[trackSession.LapIdx].prv)
 
-      let ret = loadLap(sessionData, lap[trackSession.LapIdx].idx, lap[trackSession.LapIdx].prv);
+      let ret = loadLap(trackSession.sessionData, lap[trackSession.LapIdx].idx, lap[trackSession.LapIdx].prv);
 
       let route = [];
-      sessionData.forEach((item, i) => {
+      trackSession.sessionData.forEach((item, i) => {
         if ((i >= lap[trackSession.LapIdx].prv) && (i <= lap[trackSession.LapIdx].idx)) {
           route.push([+item[2], +item[1]])
         }
@@ -191,15 +148,43 @@ function useTrackSession(_map, _marker, _popup, _marker2, _popup2) {
         draft.trackSession.actPointIdx = lap[trackSession.LapIdx].prv;
         draft.trackSession.routeJson = route;
 
-        _map.current && _map.current.panTo(draft.trackSession.actPoint);
-        _marker.current && _marker.current.setLngLat(draft.trackSession.actPoint);
-        _popup.current && _popup.current.setHTML(sessionData[draft.trackSession.actPointIdx][4] + ' ' + sessionData[draft.trackSession.actPointIdx][7]);
+
+      })
+
+      console.log("useEffect  listen trackSession.LapIdx end ", trackSession.LapIdx);
+
+    }
+  }, [trackSession.LapIdx])
+
+
+  useEffect(() => {
+
+    console.log("useEffect  listen trackSession(2).LapIdx ", trackSession2.LapIdx);
+    console.log("MtrackSession", MtrackSession)
+    if (trackSession2.LapIdx !== null) {
+      let lap = trackSession.trackJosn.lap;
+
+      let ret = loadLap(trackSession.sessionData, lap[trackSession2.LapIdx].idx, lap[trackSession2.LapIdx].prv, 2);
+
+      let route = [];
+      trackSession.sessionData.forEach((item, i) => {
+        if ((i >= lap[trackSession2.LapIdx].prv) && (i <= lap[trackSession2.LapIdx].idx)) {
+          route.push([+item[2], +item[1]])
+        }
+      })
+
+
+      setTrackSession(draft => {
+        draft.trackSession2.LapJson.features = ret;
+        draft.trackSession2.routeJson = route;
+        draft.trackSession2.actPoint = ret[0].geometry.coordinates[0];
+        draft.trackSession2.actPointIdx = lap[trackSession2.LapIdx].prv;
 
 
       })
 
     }
-  }, [trackSession.LapIdx])
+  }, [trackSession2.LapIdx])
 
 
 
@@ -207,7 +192,7 @@ function useTrackSession(_map, _marker, _popup, _marker2, _popup2) {
 }
 
 
-function getLap() {
+function getLap(_sessionData) {
   console.log("getlap start...")
 
   let prev = null;
@@ -219,7 +204,7 @@ function getLap() {
   //finishData = { "lat1": 32.1053905, "lng1": 118.863382, "lat2": 32.105466, "lng2": 118.8633663, "trackname": "" };
   //console.log("finishData", finishData);
 
-  sessionData.forEach((pos, idx) => {
+  _sessionData.forEach((pos, idx) => {
     //let pos = item.split(",");
 
     if (prev) {
@@ -261,10 +246,15 @@ function getRawCoords(data: []) {
 }
 */
 
-function groupData(data: [string], idx: number, prv: number) {
+function groupData(data: [string], idx: number, prv: number, _color: number) {
   //const rawCoords = getRawCoords(data);
-
   //console.log("groupData start", data)
+
+  const style = [
+    ["green", "red"],
+    ["#A0D995", "#73777B"],
+    ["#6CC4A1", "#DD4A48"],
+  ]
   let rawCoords = [];
   data.forEach((col, index) => {
     //const col = rowStr.split(",");
@@ -281,7 +271,7 @@ function groupData(data: [string], idx: number, prv: number) {
   //console.log("rawcoods", rawCoords)
 
   let start = 0;
-  let currentColor = 'green';
+  let currentColor = style[_color][0];
   const result = [{
     color: currentColor,
     data: [rawCoords[0]]
@@ -292,11 +282,11 @@ function groupData(data: [string], idx: number, prv: number) {
     const current = rawCoords[i][0];
     const currentResult = result[result.length - 1]
     switch (currentColor) {
-      case 'green':
+      case style[_color][0]:
         if (current >= pivot) {
           currentResult.data.push(rawCoords[i]);
         } else {
-          currentColor = 'red';
+          currentColor = style[_color][1];
           result.push({
             color: currentColor,
             data: [rawCoords[i - 1], rawCoords[i]]
@@ -305,11 +295,11 @@ function groupData(data: [string], idx: number, prv: number) {
           // start = i;
         }
         break;
-      case 'red':
+      case style[_color][1]:
         if (current <= pivot) {
           currentResult.data.push(rawCoords[i]);
         } else {
-          currentColor = 'green';
+          currentColor = style[_color][0];
           result.push({
             color: currentColor,
             data: [rawCoords[i - 1], rawCoords[i]]
@@ -331,11 +321,11 @@ function groupData(data: [string], idx: number, prv: number) {
   return result
 }
 
-function loadLap(data: [string], idx: number, prev: number) {
+function loadLap(data: [string], idx: number, prev: number, color = 0) {
 
   //console.log("loadLap start", data);
 
-  return groupData(data, idx, prev).map(item => ({
+  return groupData(data, idx, prev, color).map(item => ({
     'type': 'Feature',
     'properties': {
       'color': item.color
@@ -348,6 +338,65 @@ function loadLap(data: [string], idx: number, prev: number) {
 }
 
 
+
+function getSessionFromTxt(_trackTxt) {
+  if (!_trackTxt) {
+    console.log("_trackTxt is null ,return")
+    return;
+  }
+
+  let sessionTxt = _trackTxt.sessionTxt.split("\r\n");
+  if (sessionTxt[sessionTxt.length - 1] === "") {
+    sessionTxt.pop();
+  };
+
+  let lastItem;
+
+  // sessionData = sessionTxt.map((_item, idx) => {
+  let sessionData = [];
+  for (let idx = 0; idx < sessionTxt.length; idx++) {
+    let item = sessionTxt[idx].split(",");
+
+    let GForc;
+    let tmpvel;
+    let tmpMillis;
+    let vel = +item[4];
+
+    let ms = 0
+
+    if (idx == 0) {
+      tmpvel = item[4];
+      tmpMillis = 10
+    } else {
+      tmpvel = lastItem[4];
+      tmpMillis = +item[6] - lastItem[6];
+
+    }
+    if (idx === sessionTxt.length - 1) {
+      ms = 0;
+    } else {
+      let nexitem = sessionTxt[idx + 1].split(",");
+      ms = nexitem[6] - item[6]
+
+    }
+    GForc = (((vel - tmpvel) / 3.6) / (9.8 * tmpMillis / 1000)).toFixed(2);
+    lastItem = item;
+    item.push(GForc);
+    item.push(ms);
+    //return item;
+    sessionData.push(item);
+  }
+  // console.log("sessionData==", sessionData[0], sessionData[1], sessionData[sessionData.length - 1]);
+  // const finishTxt = await RNFS.readFile(defaultRLDATAPath + "track.txt", 'utf8');
+  let finishTxt = _trackTxt.finishTxt;
+  finishData = JSON.parse(finishTxt);
+  //console.log("finishData", finishData)
+  let lap = getLap(sessionData);
+
+
+  return { sessionData, finishData, lap }
+
+}
 
 
 

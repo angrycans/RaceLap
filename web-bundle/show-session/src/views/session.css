@@ -46,3 +46,56 @@
   margin: 12px;
   border-radius: 4px;
 }
+
+/* change background and tip color to green */
+.apple-popup.mapboxgl-popup {
+  top: 40px;
+  left: -60px;
+  color: red;
+}
+
+.apple-popup .mapboxgl-popup-content {
+  /* background-color: green; */
+  padding: 2px 4px 2px;
+}
+
+.apple-popup .mapboxgl-popup-tip {
+  /* border-top-color: green; */
+  border-top-width: 6px;
+  border-left-width: 6px;
+  border-right-width: 6px;
+  border-bottom-width: 6px;
+  display: none;
+}
+
+/* change background and tip color to green */
+.apple-popup2.mapboxgl-popup {
+  top: 40px;
+  left: 60px;
+  color: blue;
+}
+
+/* change background and tip color to green */
+.apple-popup2 .mapboxgl-popup-content {
+  /* background-color: green; */
+  padding: 2px 4px 2px;
+  /* top: 40px;
+  left: 50px; */
+}
+
+.apple-popup2 .mapboxgl-popup-tip {
+
+  border-top-width: 6px;
+  border-left-width: 6px;
+  border-right-width: 6px;
+  border-bottom-width: 6px;
+  border-bottom: 6px solid transparent;
+  border-left: none;
+  border-right-color: white;
+  border-top-color: transparent;
+  top: calc(50% - 6px);
+  left: -6px;
+  position: absolute;
+  display: none;
+
+}

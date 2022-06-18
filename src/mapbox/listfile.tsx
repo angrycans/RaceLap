@@ -95,7 +95,8 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
                           } else {
                             console.log("navgtion", item.name.indexOf("RL"));
                             if (item.name.indexOf("RL") >= 0) {
-                              navigation.navigate('MapBoxApp', { name: item.name });
+                              //  navigation.navigate('MapBoxApp', { name: item.name });
+                              navigation.navigate('ShowTrackerWebView', { name: item.name });
                             } else {
 
                               navigation.navigate('ViewTxtScreen', { name: item.name });
@@ -109,7 +110,8 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
                             <Button
                               title=""
                               onPress={async () => {
-                                navigation.navigate('ViewTxtScreen', { name: item.name });
+                                //navigation.navigate('ViewTxtScreen', { name: item.name });
+                                navigation.navigate('MapBoxApp', { name: item.name });
                                 reset()
                               }
                               }
