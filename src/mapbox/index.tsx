@@ -18,6 +18,7 @@ import { ListItem, Icon, Avatar, TabView, Tab, Button, Text } from '@rneui/theme
 import { Animated as RNAnimated } from 'react-native';
 import length from '@turf/length';
 import { point, lineString } from '@turf/helpers';
+import { tick } from './trackuitls'
 
 
 import { useTrackHook } from "./hooks"
@@ -28,21 +29,16 @@ MapboxGL.setAccessToken(MapboxAccessToken);
 const AnimatedMarkerView = RNAnimated.createAnimatedComponent(MarkerView);
 
 
-const AnnotationContent = () => (
-    <View style={styles.touchableContainer}>
 
-        <TouchableOpacity style={styles.touchable}>
-            <Text style={styles.touchableText}></Text>
-        </TouchableOpacity>
-    </View>
-);
+var _tick;
 
 const MapBoxAppScreen = () => {
 
     const [expanded, setExpanded] = useState(true)
     const { trackSession, setTrackSession } = useTrackHook();
     const { finishlineJson, sessionJosn, sessionData, trackJosn, LapJson, LapIdx2, routeJson, actPoint, actPointIdx } = trackSession;
-    const timerId = useRef(null);
+    // const tickRef = useRef(null);
+
     //console.log("useTrack ", finishlineJson, sessionJosn, trackJosn, LapJson);
     // console.log("sessionJosn ", sessionJosn);
     // console.log("trackJosn ", trackJosn);
@@ -52,6 +48,8 @@ const MapBoxAppScreen = () => {
 
     // console.log("routeJson", routeJson);
     // console.log("actPoint", actPoint);
+    // console.log("trackSession ", trackSession);
+
 
     //console.log("idx", idx)
 
@@ -59,41 +57,17 @@ const MapBoxAppScreen = () => {
 
         return () => {
             console.log("componentWillUnmount--------")
-            clearTimeout(timerId.current);
+
         }
     }, [])
-    const tick = (_actPointIdx) => {
-
-        // console.log("LapIdx2===>", trackJosn, LapIdx2)
-        if (LapIdx2 == -1) {
-            if (_actPointIdx + 1 > sessionData.length - 1) {
-                return;
-            }
-        } else {
-            console.log("__trackJosn", _actPointIdx, LapIdx2, trackJosn, trackJosn.lap[LapIdx2].idx);
-            if (_actPointIdx + 1 > trackJosn.lap[LapIdx2].idx) {
-                return;
-            }
-        }
-
-        let ts1 = sessionData[_actPointIdx + 1];
-        let ts2 = sessionData[_actPointIdx];
-
-        let timer = ts1[6] - ts2[6];
-        //  console.log("timer", timer, _actPointIdx)
-
-        timerId.current = setTimeout(() => {
-            setTrackSession(draft => {
-                draft.actPointIdx += 1;
-                draft.actPoint = draft.sessionJosn.geometry.coordinates[draft.actPointIdx];
-                _actPointIdx = draft.actPointIdx;
-            })
 
 
-            tick(_actPointIdx);
-        }, timer);
-
+    if (routeJson.length > 0 && !_tick) {
+        console.log("new tick", trackSession)
+        _tick = tick(sessionData, LapIdx2, trackJosn, routeJson, setTrackSession);
     }
+
+
 
 
     return (
@@ -137,7 +111,9 @@ const MapBoxAppScreen = () => {
                         <Camera
                             zoomLevel={18}
                             //  centerCoordinate={[12.338, 45.4385]}
-                            centerCoordinate={LapIdx2 == -1 ? sessionJosn.geometry.coordinates[0] : LapJson.features[LapIdx2]?.geometry.coordinates[0]}
+                            centerCoordinate={actPoint}
+
+                            animationDuration={100}
                         />
 
                         {finishlineJson.geometry.coordinates.length > 0 && <ShapeSource
@@ -175,6 +151,7 @@ const MapBoxAppScreen = () => {
                         </Animated.ShapeSource>}
 
                         {actPoint && <AnimatedMarkerView
+                            id="AnimatedMarkerView"
                             coordinate={actPoint}
                             anchor={{ x: 0.5, y: 0.5 }}>
                             <View style={{ alignItems: 'center' }}>
@@ -186,8 +163,8 @@ const MapBoxAppScreen = () => {
                                         height: 30,
                                         borderRadius: 10,
                                         left: 50,
-                                        paddingLeft: 10
-                                        // marginLeft: 100
+                                        paddingLeft: 10,
+                                        marginLeft: 20,
                                     }}
                                 >
                                     <Text>{(+sessionData[actPointIdx][4]).toFixed(1) + " " + sessionData[actPointIdx][7]}</Text>
@@ -203,13 +180,14 @@ const MapBoxAppScreen = () => {
                         title="Play"
                         onPress={() => {
                             console.log("play");
-                            tick(actPointIdx);
+                            _tick.play();
                         }}
                     />
                     <Button
-                        title="stop"
+                        title="pause"
                         onPress={() => {
-                            clearTimeout(timerId.current);
+                            console.log("pause");
+                            _tick.pause();
                         }}
                     />
                     <Button

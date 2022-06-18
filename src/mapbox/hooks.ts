@@ -10,7 +10,7 @@ import { loadPartialConfig } from "@babel/core";
 import { Animated, MapView, Camera, ShapeSource, LineLayer } from '@rnmapbox/maps';
 
 
-let sessionData;
+let sessionData = [];
 let finishData;
 
 let finishlineJson = {
@@ -49,7 +49,7 @@ let LapJson = {
 
 //let LapIdx2 = -1
 
-let routeJson;
+let routeJson = [];
 let actPoint;
 
 function useTrackHook() {
@@ -60,40 +60,49 @@ function useTrackHook() {
     ; (async () => {
 
       const txt = await RNFS.readFile(defaultRLDATAPath + route.params.name, 'utf8');
-      let sessionTxt = txt.split("\n");
+      let sessionTxt = txt.split("\r\n");
       if (sessionTxt[sessionTxt.length - 1] == "") {
         sessionTxt.pop();
       };
 
       let lastItem;
-      sessionData = sessionTxt.map((_item, idx) => {
-        let item = _item.split(",");
+
+      // console.log(sessionTxt);
+      for (let idx = 0; idx < sessionTxt.length; idx++) {
+        let item = sessionTxt[idx].split(",");
 
         let GForc;
         let tmpvel;
         let tmpMillis;
         let vel = +item[4];
-        let ms = +item[6]
+
+        let ms = 0
 
         if (idx == 0) {
-          tmpvel = 1;
+          tmpvel = item[4];
           tmpMillis = 10
         } else {
           tmpvel = lastItem[4];
           tmpMillis = +item[6] - lastItem[6];
+
         }
+        if (idx === sessionTxt.length - 1) {
+          ms = 0;
+        } else {
+          let nexitem = sessionTxt[idx + 1].split(",");
+          ms = +nexitem[6] - +item[6]
 
-
-        GForc = (((vel - tmpvel) / 3.6) / (9.8 * tmpMillis / 1000)).toFixed(3);
-        //  let GForc2 = Math.sqrt(1 + Math.pow(GForc, 2)).toFixed(3);
-
+        }
+        GForc = (((vel - tmpvel) / 3.6) / (9.8 * tmpMillis / 1000)).toFixed(2);
         lastItem = item;
-        // item.push(tmpMillis);
         item.push(GForc);
-        // console.log("vel", vel, GForc)
-        console.log("v", vel, tmpvel, GForc)
-        return item;
-      })
+        //console.log(ms)
+        item.push(ms.toFixed());
+        //return item;
+        sessionData.push(item);
+      }
+
+
       console.log("sessionData==", sessionData);
       const finishTxt = await RNFS.readFile(defaultRLDATAPath + "track.txt", 'utf8');
       finishData = JSON.parse(finishTxt);
@@ -134,7 +143,7 @@ function useTrackHook() {
   useEffect(() => {
 
 
-    console.log("useEffect2 ", trackSession.LapIdx2);
+    console.log("useEffect trackSession.LapIdx2", trackSession.LapIdx2);
     if (trackSession.LapIdx2 == -1) {
       return;
     }
@@ -148,10 +157,21 @@ function useTrackHook() {
 
     console.log("ret=", ret, lap)
 
+    let route = [];
+    sessionData.forEach((item, i) => {
+      if ((i >= lap[trackSession.LapIdx2].prv) && (i <= lap[trackSession.LapIdx2].idx)) {
+        route.push([+item[2], +item[1]])
+      }
+    })
+
+    console.log("route", route);
+
     setTrackSession(draft => {
       draft.LapJson.features = ret;
       draft.actPoint = ret[0].geometry.coordinates[0];
       draft.actPointIdx = lap[trackSession.LapIdx2].prv;
+      draft.routeJson = route;
+
 
     })
 
@@ -159,15 +179,21 @@ function useTrackHook() {
 
   }, [trackSession.LapIdx2])
 
+
   // useEffect(() => {
 
+
+  //   console.log("useEffect trackSession.actPoint", trackSession.actPoint);
+
   //   setTrackSession(draft => {
-  //     draft.actPointIdx += 1;
-  //     draft.actPoint = draft.sessionJosn.geometry.coordinates[draft.actPointIdx];
+  //     // draft.actPoint = ret[0].geometry.coordinates[0];
+
+
   //   })
 
-  // }, [trackSession.actPointIdx])
+  //   // LapJson.features = ret;
 
+  // }, [trackSession.actPoint])
 
   return { trackSession, setTrackSession };
 }
@@ -317,6 +343,4 @@ function loadLap(data: [string], idx: number, prev: number) {
 
 export {
   useTrackHook,
-
-
 }

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Query terrain elevation</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link href="./mapbox-gl.css" rel="stylesheet">
+  <script src="./mapbox-gl.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+    /* change background and tip color to green */
+    .apple-popup.mapboxgl-popup {
+      top: 40px;
+      left: -60px;
+      color: red;
+    }
+
+    .apple-popup .mapboxgl-popup-content {
+      /* background-color: green; */
+      padding: 2px 4px 2px;
+    }
+
+    .apple-popup .mapboxgl-popup-tip {
+      /* border-top-color: green; */
+      border-top-width: 6px;
+      border-left-width: 6px;
+      border-right-width: 6px;
+      border-bottom-width: 6px;
+      display: none;
+    }
+
+    /* change background and tip color to green */
+    .apple-popup2.mapboxgl-popup {
+      top: 40px;
+      left: 60px;
+      color: green;
+    }
+
+    /* change background and tip color to green */
+    .apple-popup2 .mapboxgl-popup-content {
+      /* background-color: green; */
+      padding: 2px 4px 2px;
+      /* top: 40px;
+      left: 50px; */
+    }
+
+    .apple-popup2 .mapboxgl-popup-tip {
+
+      border-top-width: 6px;
+      border-left-width: 6px;
+      border-right-width: 6px;
+      border-bottom-width: 6px;
+      border-bottom: 6px solid transparent;
+      border-left: none;
+      border-right-color: white;
+      border-top-color: transparent;
+      top: calc(50% - 6px);
+      left: -6px;
+      position: absolute;
+      display: none;
+
+    }
+  </style>
+</head>
+
+<body>
+  <script src="./data.js"></script>
+  <script src="./turf.min.js"></script>
+  <div id="map"></div>
+  <div style="background-color:#00000000 ;margin: 10px; position:absolute;top: 0;left: 0;width: 100px;height: 40px;"
+    onclick="play()">play</div>
+  <div style="background-color:#00000000 ;margin: 10px; position:absolute;top: 0;left: 120px;width: 100px;height: 40px;"
+    onclick="pause()">
+    pause
+    <div>
+      <script>
+        function tick(_sessionData, _trackJosn, _route, _marker, _popup, _map) {
+
+          let aniIdx = 0;
+          let start = 0;
+          let aniIdx_session;
+          let lapStartTime = 0;
+          let lapEndTime = 0;
+          // let difflngLat = {};
+          let difftime = 0;
+          let lasttime = 0;
+          let pause = false;
+          let stime;
+
+          function frame(time) {
+            let usepause = false;
+            if (start == 0) {
+              start = time;
+              if (!lapStartTime) {
+                lapStartTime = time;
+                console.log("lapStartTime", lapStartTime.toFixed())
+              }
+              start -= lasttime == 0 ? 17 : time - lasttime; //因为每次开始点都从路由的第一个点开始,而每次点都在开始位置,所以跳过一帧.
+            }
+
+            aniIdx_session = _trackJosn.lap[_trackJosn.LapIdx2].prv + aniIdx;
+            let pinRoute = [];
+            let animationDuration;
+            if (difftime > 0) {
+              // pinRoute = [[difflngLat.lng, difflngLat.lat], coords[aniIdx + 1]];
+              pinRoute = [_route[aniIdx], _route[aniIdx + 1]];
+              animationDuration = _sessionData[aniIdx_session][8] - difftime;
+            } else {
+              pinRoute = [_route[aniIdx], _route[aniIdx + 1]];
+              animationDuration = _sessionData[aniIdx_session][8];
+              // console.log("diff2", diff2, sessionData[aniIdx_session][8], animationDuration.toFixed())
+            }
+            // pinRoute = [coords[aniIdx], coords[aniIdx + 1]];
+            //animationDuration = sessionData[aniIdx_session][8] + diff2;//4090528 - 4090328;
+            let path = turf.lineString(pinRoute);
+            let pathDistance = turf.lineDistance(path);
+
+
+            let animationPhase = (time - start) / animationDuration;
+
+            let diff = (time - start).toFixed() - animationDuration;
+            //console.log("timer", aniIdx, coords.length, start.toFixed(), time, sessionData[aniIdx_session][8], animationDuration.toFixed(), animationPhase.toFixed(2), (time - start).toFixed(), difftime, time.toFixed());
+            console.log("timer", start.toFixed(), time, _sessionData[aniIdx_session][8], animationDuration.toFixed(), animationPhase.toFixed(2), (time - start).toFixed(), difftime, time.toFixed(), (lasttime == 0 ? 17 : time - lasttime).toFixed());
+            lasttime = time;
+
+            if (diff >= 0) {
+              difftime = diff;
+              animationPhase = 1;
+
+              // difflngLat = marker.getLngLat();
+
+              //  console.log("point ", sessionData[aniIdx_session]);
+              console.log("point route end to next", aniIdx, _sessionData[aniIdx_session][8], _sessionData[aniIdx_session + 1][6] - _sessionData[_trackJosn.lap[_trackJosn.LapIdx2].prv][6], (time - start).toFixed(), diff, (time - lapStartTime).toFixed());
+              console.log("point ", _sessionData[aniIdx_session]);
+              console.log("point ", _sessionData[aniIdx_session + 1]);
+              console.log("maker ", _marker.getLngLat().lng, _marker.getLngLat().lat);
+
+              aniIdx++;
+              start = 0;
+              //window.requestAnimationFrame(frame);
+              //return;
+
+              if (aniIdx === _route.length - 1) {
+                // window.requestAnimationFrame(frame);
+                //console.log("aniIdx > coords.length", aniIdx, _route.length)
+                lapEndTime = time;
+                aniIdx = 0;
+                //console.log("endtime", _sessionData[_trackJosn.lap[_trackJosn.LapIdx2].idx][6] - _sessionData[_trackJosn.lap[_trackJosn.LapIdx2].prv][6], lapEndTime - lapStartTime)
+                //console.log("performance", performance.now() - stime)
+                return;
+              }
+              if (pause) {
+                usepause = true;
+              }
+
+            } else {
+              // difftime = 0;
+            }
+
+            // Get the new latitude and longitude by sampling along the path
+            const alongPath = turf.along(path, pathDistance * animationPhase)
+              .geometry.coordinates;
+            const lngLat = {
+              lng: alongPath[0],
+              lat: alongPath[1]
+            };
+
+            // Update the popup altitude value and marker location
+            _popup.setHTML(_sessionData[aniIdx_session][4] + ' ' + _sessionData[aniIdx_session][7]);
+            _marker.setLngLat(lngLat);
+            _map.panTo(lngLat);
+
+            // Reduce the visible length of the line by using a line-gradient to cutoff the line
+            // animationPhase is a value between 0 and 1 that reprents the progress of the animation
+            // _map.setPaintProperty('line', 'line-gradient', [
+            //   'step',
+            //   ['line-progress'],
+            //   'red',
+            //   animationPhase,
+            //   'rgba(255, 0, 0, 0)'
+            // ]);
+
+
+            if (!usepause) {
+              window.requestAnimationFrame(frame);
+            }
+
+          }
+
+          return {
+            play: () => {
+              pause = false;
+              start = 0;
+              lasttime = 0;
+              // aniIdx = 0;
+              window.requestAnimationFrame(frame)
+            },
+            pause: () => {
+              pause = true;
+            },
+            resume: () => {
+              // pause = false;
+              // start = 0;
+              // lasttime = 0;
+              // window.requestAnimationFrame(frame)
+            }
+          }
+
+        }
+
+
+        var pause;
+        var play;
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoiYW5ncnljYW5zIiwiYSI6ImNsMm8ycXdwdzAxeTczY204cXJ5ajBzeXEifQ.6Ln8QhR1LGdJC7YLjdZXsQ';
+        (async () => {
+
+          const mapStyle = {
+            "version": 8,
+            "name": "Dark",
+            "sources": {
+              "mapbox": {
+                "type": "vector",
+                "url": "mapbox://mapbox.mapbox-streets-v8"
+              },
+            },
+            //"sprite": "mapbox://sprites/mapbox/dark-v10",
+            // "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
+            "layers": [
+            ],
+          };
+          const map = new mapboxgl.Map({
+            container: 'map',
+            //style: mapStyle,
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [118.98599817, 31.93399250],
+            zoom: 18
+          });
+
+          let trackJosn = {
+            LapIdx2: 4,
+            lap: [
+              { prv: 336, idx: 345, timer: 61603, maxspeed: 95.71 }
+              , { prv: 336, idx: 644, timer: 61603, maxspeed: 95.71 }
+              , { prv: 644, idx: 959, timer: 63813, maxspeed: 97.88 }
+              , { prv: 959, idx: 1267, timer: 61589, maxspeed: 99.66 }
+              , { prv: 1267, idx: 1575, timer: 61594, maxspeed: 96.23 }
+              , { prv: 1575, idx: 1883, timer: 61592, maxspeed: 96.45 }
+              , { prv: 1883, idx: 2196, timer: 62618, maxspeed: 97.4 }
+              , { prv: 2196, idx: 2503, timer: 61390, maxspeed: 98.08 }
+              , { prv: 2503, idx: 2810, timer: 61428, maxspeed: 99.75 }
+            ]
+          }
+
+          let trackJosn2 = {
+            LapIdx2: 8,
+            lap: [
+              { prv: 336, idx: 345, timer: 61603, maxspeed: 95.71 }
+              , { prv: 336, idx: 644, timer: 61603, maxspeed: 95.71 }
+              , { prv: 644, idx: 959, timer: 63813, maxspeed: 97.88 }
+              , { prv: 959, idx: 1267, timer: 61589, maxspeed: 99.66 }
+              , { prv: 1267, idx: 1575, timer: 61594, maxspeed: 96.23 }
+              , { prv: 1575, idx: 1883, timer: 61592, maxspeed: 96.45 }
+              , { prv: 1883, idx: 2196, timer: 62618, maxspeed: 97.4 }
+              , { prv: 2196, idx: 2503, timer: 61390, maxspeed: 98.08 }
+              , { prv: 2503, idx: 2810, timer: 61428, maxspeed: 99.75 }
+            ]
+          }
+          //const _item = sessionTxt.split("\r\n");
+          // let coords = _item.map(item => {
+          //   let s = item.split(",")
+          //   return [s[2], s[1]]
+          // })
+
+          let lastItem;
+          let coords = [];
+          let route2 = []
+
+          // sessionData = sessionTxt.map((_item, idx) => {
+
+          let sessionData = [];
+          let sessionTxt = data.split("\n");
+          // console.log(sessionTxt);
+          for (let idx = 0; idx < sessionTxt.length; idx++) {
+            let item = sessionTxt[idx].split(",");
+
+            let GForc;
+            let tmpvel;
+            let tmpMillis;
+            let vel = +item[4];
+
+            let ms = 0
+
+            if (idx == 0) {
+              tmpvel = item[4];
+              tmpMillis = 10
+            } else {
+              tmpvel = lastItem[4];
+              tmpMillis = +item[6] - lastItem[6];
+
+            }
+            if (idx === sessionTxt.length - 1) {
+              ms = 0;
+            } else {
+              let nexitem = sessionTxt[idx + 1].split(",");
+              ms = nexitem[6] - item[6]
+
+            }
+            GForc = (((vel - tmpvel) / 3.6) / (9.8 * tmpMillis / 1000)).toFixed(2);
+            lastItem = item;
+            item.push(GForc);
+            item.push(ms);
+            //return item;
+            sessionData.push(item);
+            // coords.push([item[2], item[1]]);
+          }
+
+          sessionData.forEach((item, i) => {
+            if ((i >= trackJosn.lap[trackJosn.LapIdx2].prv) && (i <= trackJosn.lap[trackJosn.LapIdx2].idx)) {
+              coords.push([item[2], item[1]])
+            }
+          })
+
+          if (trackJosn2) {
+            sessionData.forEach((item, i) => {
+              if ((i >= trackJosn2.lap[trackJosn2.LapIdx2].prv) && (i <= trackJosn2.lap[trackJosn2.LapIdx2].idx)) {
+                route2.push([item[2], item[1]])
+              }
+            })
+          }
+
+          // coords.push([_item[2], _item[1]]);
+          console.log("coords", coords);
+          console.log("route2", route2);
+          console.log("sessionData", sessionData);
+          console.log("trackJosn", trackJosn);
+          let gJosn = {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: coords
+            }
+          }
+
+
+          const sessionJosn = {
+            'type': 'FeatureCollection',
+            'features': [
+              {
+                'type': 'Feature',
+                'geometry': {
+                  'type': 'LineString',
+                  'coordinates': coords
+                }
+              }
+            ]
+          };
+
+
+          map.on('load', () => {
+
+            // Create the marker and popup that will display the elevation queries
+            const popup = new mapboxgl.Popup({ closeButton: false, className: "apple-popup" });
+            const marker = new mapboxgl.Marker({
+              color: 'red',
+              scale: 0.5,
+              draggable: false,
+              pitchAlignment: 'auto',
+              rotationAlignment: 'auto'
+            })
+              .setLngLat(coords[0])
+              .setPopup(popup)
+              .addTo(map)
+              .togglePopup();
+
+            map.addSource('route', {
+              'type': 'geojson',
+              'data': gJosn
+            });
+            // map.addLayer({
+            //   'id': 'route',
+            //   'source': 'route',
+            //   'type': 'line',
+            //   'paint': {
+            //     'line-width': 4,
+            //     'line-color': '#007cbf'
+            //   }
+            // });
+
+            map.addLayer({
+              type: 'line',
+              source: 'route',
+              id: 'line',
+              paint: {
+                'line-color': '#007cbf',
+                'line-width': 2
+              },
+              layout: {
+                'line-cap': 'round',
+                'line-join': 'round'
+              }
+            });
+            let popup2;
+            let marker2
+            if (trackJosn2) {
+              popup2 = new mapboxgl.Popup({ closeButton: false, className: "apple-popup2" });
+              marker2 = new mapboxgl.Marker({
+                color: 'green',
+                scale: 0.5,
+                draggable: false,
+                pitchAlignment: 'auto',
+                rotationAlignment: 'auto'
+              })
+                .setLngLat(route2[0])
+                .setPopup(popup2)
+                .addTo(map)
+                .togglePopup();
+
+
+              console.log("add trackjson2")
+
+              map.addSource('route2', {
+                'type': 'geojson',
+                'data': {
+                  type: 'Feature',
+                  properties: {},
+                  geometry: {
+                    type: 'LineString',
+                    coordinates: route2
+                  }
+                }
+              });
+
+              map.addLayer({
+                type: 'line',
+                source: 'route2',
+                id: 'route2',
+                paint: {
+                  'line-color': '#007caa',
+                  'line-width': 2
+                },
+                layout: {
+                  'line-cap': 'round',
+                  'line-join': 'round'
+                }
+              });
+
+            }
+
+
+
+            // tick(_sessionData, _trackJosn, _route, _marker, _popup, _map) {
+
+            let tick1 = tick(sessionData, trackJosn, coords, marker, popup, map);
+            let tick2 = tick(sessionData, trackJosn2, route2, marker2, popup2, map);
+            play = function play() {
+              console.log("play");
+
+              tick1.play();
+              tick2.play();
+            }
+
+            pause = function pause() {
+              console.log("stop")
+              tick1.pause();
+              tick2.pause();
+            }
+
+          });
+
+
+          await map.once('idle');
+
+        })();
+
+
+
+      </script>
+
+</body>
+
+</html>
