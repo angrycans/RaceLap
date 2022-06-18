@@ -18,10 +18,11 @@ const mapStyle = {
   ],
 };
 
-export function useTrack(trackSession, map, mapContainer, marker, popup) {
+export function useTrackMap(trackSession, trackSession2, map, mapContainer, marker, popup, marker2, popup2, zoom) {
   useEffect(() => {
-    const { finishlineJson, sessionJosn, sessionData, trackJosn, LapJson, LapIdx2, routeJson, actPoint, actPointIdx } = trackSession;
+    const { finishlineJson, sessionJosn, sessionData, trackJosn, LapJson, LapIdx, routeJson, actPoint, actPointIdx } = trackSession;
 
+    console.log("useTrackMap didmount")
     const point = {
       'type': 'FeatureCollection',
       'features': [
@@ -37,15 +38,16 @@ export function useTrack(trackSession, map, mapContainer, marker, popup) {
     };
     // initialize map only once
     if (map.current) {
-      if (LapIdx2 > 0) {
-        map.current.getSource("route").setData(LapJson);
-        map.current.getSource("point").setData(point);
+      if (LapIdx === -1) {
+        //map.current.getSource("sessionroute").setData(null);
+        map.current.setLayoutProperty('sessionroutelayer', 'visibility', 'visible');
+        map.current.setLayoutProperty('colorlinelayer', 'visibility', 'none');
+
+      } else {
+        map.current.setLayoutProperty('sessionroutelayer', 'visibility', 'none');
+        map.current.setLayoutProperty('colorlinelayer', 'visibility', 'visible');
         map.current.getSource("colorline").setData(LapJson);
-
-        //console.log("marker.current-----", marker.current);
-        marker.current.setLngLat(actPoint)
-
-
+        // map.current.getSource("colorline").setData(LapJson);
       }
       return
     };
@@ -55,21 +57,16 @@ export function useTrack(trackSession, map, mapContainer, marker, popup) {
     }
 
 
-
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: mapStyle,
       center: actPoint,
-      zoom: 16
+      zoom: zoom
     });
-
-
-    // A single point that animates along the route.
-    // Coordinates are initially set to origin.
 
     map.current.on('load', () => {
       // Add a source and layer displaying a point which will be animated in a circle.
-      map.current.addSource('route', {
+      map.current.addSource('sessionroute', {
         'type': 'geojson',
         'data': sessionJosn
 
@@ -82,7 +79,7 @@ export function useTrack(trackSession, map, mapContainer, marker, popup) {
 
 
       map.current.addLayer({
-        "id": "背景",
+        "id": "backgroud",
         "type": "background",
         "paint": {
           "background-color": "rgba(3, 20, 57, 0.4)"
@@ -92,8 +89,8 @@ export function useTrack(trackSession, map, mapContainer, marker, popup) {
         }
       });
       map.current.addLayer({
-        'id': 'route',
-        'source': 'route',
+        'id': 'sessionroutelayer',
+        'source': 'sessionroute',
         'type': 'line',
         'paint': {
           'line-width': 4,
@@ -115,21 +112,7 @@ export function useTrack(trackSession, map, mapContainer, marker, popup) {
             'line-color': '#007cbf'
           }
         });
-
       }
-
-
-      map.current.addLayer({
-        'id': 'point',
-        'source': 'point',
-        'type': 'symbol',
-        'layout': {
-          'icon-image': 'marker-15',
-          'icon-rotation-alignment': 'map',
-          'icon-allow-overlap': true,
-          'icon-ignore-placement': true
-        }
-      });
 
       map.current.addSource('colorline', {
         type: 'geojson',
@@ -150,6 +133,26 @@ export function useTrack(trackSession, map, mapContainer, marker, popup) {
         }
       });
 
+      /*
+            map.current.addSource('colorline2', {
+              type: 'geojson',
+              lineMetrics: true,
+              data: {
+                'type': 'FeatureCollection',
+                'features': LapJson
+              }
+            });
+      
+            map.current.addLayer({
+              'id': 'colorlinelayer2',
+              'type': 'line',
+              'source': 'colorline2',
+              'paint': {
+                'line-width': 3,
+                'line-color': ['get', 'color']
+              }
+            });
+      */
       popup.current = new mapboxgl.Popup({ closeButton: false });
       marker.current = new mapboxgl.Marker({
         color: 'red',
@@ -162,7 +165,7 @@ export function useTrack(trackSession, map, mapContainer, marker, popup) {
         .setPopup(popup.current)
         .addTo(map.current)
         .togglePopup();
-      popup.current.setHTML('Altitude: ' + 1 + 'm<br/>');
+      popup.current.setHTML(sessionData[actPointIdx][4] + ' ' + sessionData[actPointIdx][7]);
       marker.current.setLngLat(actPoint);
     });
 

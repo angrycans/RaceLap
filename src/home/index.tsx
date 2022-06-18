@@ -53,6 +53,11 @@ class HomeScreen extends React.Component {
                     title="Go to RouteAnimdemo"
                     onPress={() => navigation.navigate('RouteAnimdemo')}
                 />
+
+                <Button
+                    title="Go to demoh5"
+                    onPress={() => navigation.navigate('demoh5')}
+                />
             </View>
         );
     }

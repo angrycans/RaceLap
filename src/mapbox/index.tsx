@@ -48,7 +48,7 @@ const MapBoxAppScreen = () => {
 
     // console.log("routeJson", routeJson);
     // console.log("actPoint", actPoint);
-    // console.log("trackSession ", trackSession);
+    console.log("trackSession ", trackSession);
 
 
     //console.log("idx", idx)
@@ -66,8 +66,6 @@ const MapBoxAppScreen = () => {
         console.log("new tick", trackSession)
         _tick = tick(sessionData, LapIdx2, trackJosn, routeJson, setTrackSession);
     }
-
-
 
 
     return (
@@ -135,7 +133,7 @@ const MapBoxAppScreen = () => {
                         </ShapeSource>
 
 
-                        {actPoint && <Animated.ShapeSource
+                        {routeJson.length > 0 && <Animated.ShapeSource
                             id="currentLocationSource1"
                             shape={
                                 {
@@ -145,12 +143,12 @@ const MapBoxAppScreen = () => {
                             }
                         >
                             <Animated.CircleLayer
-                                id="currentLocationCircle"
+                                id="currentLocationCircle1"
                                 style={styles.circleLayer}
                             />
                         </Animated.ShapeSource>}
 
-                        {actPoint && <AnimatedMarkerView
+                        {routeJson.length > 0 && <AnimatedMarkerView
                             id="AnimatedMarkerView"
                             coordinate={actPoint}
                             anchor={{ x: 0.5, y: 0.5 }}>

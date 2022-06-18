@@ -19,20 +19,21 @@ const ShowTrackerWebView = () => {
     function sendMsg2Web(key: string, data: any) {
         // console.log("onMessage", data.nativeEvent.data);
         //let a = { a: 123 };
-        web.current.injectJavaScript(`RNMsg.emit("${key}",${JSON.stringify(data)})`);
+        console.log("sendMsg2Web", key, data);
+        web.current.injectJavaScript(`RNMsg.emit("${key}",${JSON.stringify(data)});true`);
     }
 
     const web = useRef(null);
     const { trackTxt, setTrackTxt } = useShowTrackTxtHook();
     useEffect(() => {
-        console.log("ShowTrackerWebView __dev__=", __DEV__)
-        if (trackTxt.finishTxt != "" && trackTxt.sessionTxt != "") {
-            console.log("injectJavaScript", trackTxt);
-            // let a = 12345;
-            // web.current.injectJavaScript(`RNMessage(window.trackTxt=${JSON.stringify(trackTxt)});true;`);
-            // web.current.injectJavaScript(`console.log("msg1=>",msg);msg.emit('rnmsg',${a})`);
-            // web.current.postMessage('Data from React Native App');
-            sendMsg2Web("trackTxt", trackTxt);
+        console.log("ShowTrackerWebView __dev__=", __DEV__, web.current)
+        if (trackTxt.finishTxt != "" && trackTxt.sessionTxt != "" && web.current) {
+
+            //sendMsg2Web("trackTxt", trackTxt);
+            setTimeout(() => {
+                sendMsg2Web("trackTxt", trackTxt);
+            }, 1000);
+
         }
     }, [trackTxt])
     return (
@@ -50,7 +51,7 @@ const ShowTrackerWebView = () => {
                 style={{ flex: 1 }}
                 ref={web}
                 onMessage={onMessage}
-            //injectJavaScript={`alert("");window.__DEV__=${__DEV__}`}
+                injectJavaScript={`console.log("init...");window.__DEV__=${__DEV__}`}
             />
         </View>
     )

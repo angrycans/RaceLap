@@ -43,15 +43,17 @@ let LapJson = {
 };
 
 
-//let LapIdx2 = -1
+//let LapIdx = -1
 
 let routeJson;
 let actPoint;
 
-function useTrackHook() {
-  const [trackSession, setTrackSession] = useImmer({ trackTxt: null, LapIdx2: -1, sessionData: null, finishlineJson, sessionJosn, trackJosn, LapJson, routeJson, actPoint, actPointIdx: 0 });
-  //const route = useRoute<RouteProp<{ params: { name: string } }>>();
+function useTrackSession(_map, _marker, _popup, _marker2, _popup2) {
 
+  console.log("useTrackSession init----")
+  const [MtrackSession, setTrackSession] = useImmer({ trackSession: { trackTxt: null, LapIdx: -1, sessionData: null, finishlineJson, sessionJosn, trackJosn, LapJson, routeJson, actPoint, actPointIdx: 0 }, trackSession2: { trackTxt: null, LapIdx: -1, sessionData: null, finishlineJson, sessionJosn, trackJosn, LapJson, routeJson, actPoint, actPointIdx: 0 } });
+  //const route = useRoute<RouteProp<{ params: { name: string } }>>();
+  const { trackSession, trackSession2 } = MtrackSession;
   useEffect(() => {
     ; (async () => {
       console.log("usetackhook listen tracktxt", trackSession.trackTxt)
@@ -98,7 +100,7 @@ function useTrackHook() {
         //return item;
         sessionData.push(item);
       }
-      console.log("sessionData==", sessionData[0], sessionData[1], sessionData[sessionData.length - 1]);
+      // console.log("sessionData==", sessionData[0], sessionData[1], sessionData[sessionData.length - 1]);
       // const finishTxt = await RNFS.readFile(defaultRLDATAPath + "track.txt", 'utf8');
       let finishTxt = trackSession.trackTxt.finishTxt;
       finishData = JSON.parse(finishTxt);
@@ -107,24 +109,29 @@ function useTrackHook() {
       // console.log("lap", lap)
 
       setTrackSession(draft => {
-        draft.sessionJosn.geometry.coordinates = [];
-        draft.sessionData = sessionData;
+
+        draft.trackSession.sessionJosn.geometry.coordinates = [];
+        draft.trackSession.sessionData = sessionData;
 
         sessionData.forEach(pos => {
           // let pos = d.split(",")
-          draft.sessionJosn.geometry.coordinates.push([parseFloat(pos[2]), parseFloat(pos[1])])
+          draft.trackSession.sessionJosn.geometry.coordinates.push([parseFloat(pos[2]), parseFloat(pos[1])])
         });
 
-        draft.finishlineJson.geometry.coordinates = [];
-        draft.finishlineJson.geometry.coordinates.push([parseFloat(finishData.lng1), parseFloat(finishData.lat1)]);
-        draft.finishlineJson.geometry.coordinates.push([parseFloat(finishData.lng2), parseFloat(finishData.lat2)]);
+        draft.trackSession.finishlineJson.geometry.coordinates = [];
+        draft.trackSession.finishlineJson.geometry.coordinates.push([parseFloat(finishData.lng1), parseFloat(finishData.lat1)]);
+        draft.trackSession.finishlineJson.geometry.coordinates.push([parseFloat(finishData.lng2), parseFloat(finishData.lat2)]);
 
-        draft.trackJosn.lap = lap;
+        draft.trackSession.trackJosn.lap = lap;
 
         //设置 线路点和actpoint
         //draft.routeJson = new Animated.RouteCoordinatesArray(draft.sessionJosn.geometry.coordinates.reverse());
-        draft.actPoint = draft.sessionJosn.geometry.coordinates[0];
-        draft.actPointIdx = 0;
+        draft.trackSession.actPoint = draft.trackSession.sessionJosn.geometry.coordinates[0];
+        draft.trackSession.actPointIdx = 0;
+
+        _map.current && _map.current.panTo(draft.trackSession.actPoint);
+        _marker.current && _marker.current.setLngLat(draft.trackSession.actPoint);
+        _popup.current && _popup.current.setHTML(sessionData[draft.trackSession.actPointIdx][4] + ' ' + sessionData[draft.trackSession.actPointIdx][7]);
 
       })
 
@@ -138,42 +145,65 @@ function useTrackHook() {
 
   useEffect(() => {
 
-    console.log("useEffect  listen trackSession.LapIdx2 ", trackSession.LapIdx2);
-    if (trackSession.LapIdx2 == -1) {
-      return;
+    console.log("useEffect  listen trackSession.LapIdx ", trackSession.LapIdx);
+    if (trackSession.LapIdx === -1) {
+
+      console.log("trackSession", trackSession)
+
+      if (!trackSession.trackTxt) {
+        console.log("trackTxt is null ignore")
+        return;
+      }
+      setTrackSession(draft => {
+        draft.trackSession.actPoint = draft.trackSession.sessionJosn.geometry.coordinates[0];
+        draft.trackSession.actPointIdx = 0;
+
+        draft.trackSession.routeJson = [];
+        //  draft.LapJson.features = null;
+        _map.current && _map.current.panTo(draft.trackSession.actPoint);
+        _marker.current && _marker.current.setLngLat(draft.trackSession.actPoint);
+        _popup.current && _popup.current.setHTML(sessionData[draft.trackSession.actPointIdx][4] + ' ' + sessionData[draft.trackSession.actPointIdx][7]);
+
+        //_map.current.reload
+      })
+    } else {
+
+      //return;
+      let lap = trackSession.trackJosn.lap;
+
+      //console.log("useEffect2 ", lap)
+
+      //console.log("lap[trackSession.LapIdx].idx, lap[trackSession.LapIdx].prv", lap[trackSession.LapIdx].idx, lap[trackSession.LapIdx].prv)
+
+      let ret = loadLap(sessionData, lap[trackSession.LapIdx].idx, lap[trackSession.LapIdx].prv);
+
+      let route = [];
+      sessionData.forEach((item, i) => {
+        if ((i >= lap[trackSession.LapIdx].prv) && (i <= lap[trackSession.LapIdx].idx)) {
+          route.push([+item[2], +item[1]])
+        }
+      })
+
+
+      setTrackSession(draft => {
+        draft.trackSession.LapJson.features = ret;
+        draft.trackSession.actPoint = ret[0].geometry.coordinates[0];
+        draft.trackSession.actPointIdx = lap[trackSession.LapIdx].prv;
+        draft.trackSession.routeJson = route;
+
+        _map.current && _map.current.panTo(draft.trackSession.actPoint);
+        _marker.current && _marker.current.setLngLat(draft.trackSession.actPoint);
+        _popup.current && _popup.current.setHTML(sessionData[draft.trackSession.actPointIdx][4] + ' ' + sessionData[draft.trackSession.actPointIdx][7]);
+
+
+      })
+
     }
-    let lap = trackSession.trackJosn.lap;
-
-    //console.log("useEffect2 ", lap)
-
-    //console.log("lap[trackSession.LapIdx2].idx, lap[trackSession.LapIdx2].prv", lap[trackSession.LapIdx2].idx, lap[trackSession.LapIdx2].prv)
-
-    let ret = loadLap(sessionData, lap[trackSession.LapIdx2].idx, lap[trackSession.LapIdx2].prv);
-
-    //console.log("ret=", ret, lap)
-
-    setTrackSession(draft => {
-      draft.LapJson.features = ret;
-      draft.actPoint = ret[0].geometry.coordinates[0];
-      draft.actPointIdx = lap[trackSession.LapIdx2].prv;
-
-    })
-
-    // LapJson.features = ret;
-
-  }, [trackSession.LapIdx2])
-
-  // useEffect(() => {
-
-  //   setTrackSession(draft => {
-  //     draft.actPointIdx += 1;
-  //     draft.actPoint = draft.sessionJosn.geometry.coordinates[draft.actPointIdx];
-  //   })
-
-  // }, [trackSession.actPointIdx])
+  }, [trackSession.LapIdx])
 
 
-  return { trackSession, setTrackSession };
+
+  return { trackSession, trackSession2, setTrackSession };
 }
 
 
@@ -322,7 +352,7 @@ function loadLap(data: [string], idx: number, prev: number) {
 
 
 export {
-  useTrackHook,
+  useTrackSession,
 
 
 }

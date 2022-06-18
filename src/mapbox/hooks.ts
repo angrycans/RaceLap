@@ -67,7 +67,8 @@ function useTrackHook() {
 
       let lastItem;
 
-      // console.log(sessionTxt);
+      console.log(sessionTxt);
+      sessionData = [];
       for (let idx = 0; idx < sessionTxt.length; idx++) {
         let item = sessionTxt[idx].split(",");
 

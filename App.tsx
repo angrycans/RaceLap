@@ -17,6 +17,7 @@ import ListFileAppScreen from './src/mapbox/listfile'
 import ViewTxt from './src/mapbox/view-txt'
 import ShowTrackerWebView from './src/showtracker'
 import SettingScreen from './src/setting'
+import demoh5 from './src/demoh5'
 
 
 import { msg } from './src/libs'
@@ -58,6 +59,7 @@ function App() {
           <Stack.Screen name="ShowTrackerWebView" component={ShowTrackerWebView} />
           <Stack.Screen name="SettingScreen" component={SettingScreen} />
           <Stack.Screen name="RouteAnimdemo" component={RouteAnimdemo} />
+          <Stack.Screen name="demoh5" component={demoh5} />
 
         </Stack.Navigator>
         <View>
