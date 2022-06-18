@@ -32,7 +32,7 @@ const ShowTrackerWebView = () => {
             //sendMsg2Web("trackTxt", trackTxt);
             setTimeout(() => {
                 sendMsg2Web("trackTxt", trackTxt);
-            }, 1000);
+            }, 2000);
 
         }
     }, [trackTxt])
@@ -46,7 +46,7 @@ const ShowTrackerWebView = () => {
                 useWebKit={true}
                 mediaPlaybackRequiresUserAction={true}
                 mixedContentMode="compatibility"
-                originWhitelist={__DEV__ ? ['https://', 'http://'] : ["file://"]}//{["file://"]}
+                originWhitelist={!__DEV__ ? ['https://', 'http://'] : ["file://"]}//{["file://"]}
                 allowingReadAccessToURL="*"
                 style={{ flex: 1 }}
                 ref={web}

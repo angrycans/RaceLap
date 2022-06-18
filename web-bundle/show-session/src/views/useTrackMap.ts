@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
-import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import { NONAME } from 'dns';
 
+/* eslint import/no-webpack-loader-syntax: off */
+// @ts-ignore
+import mapboxgl from '!mapbox-gl';// eslint-disable-line import/no-webpack-loader-syntax
 
 
 const mapStyle = {

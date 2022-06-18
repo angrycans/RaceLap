@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 
-//import './index.css';
-//import App from './App';
+// import './index.css';
+// import App from './App';
 import SessionScreen from './views/session';
 
 
@@ -12,7 +12,7 @@ import VConsole from 'vconsole';
 
 
 //import reportWebVitals from './reportWebVitals';
-//const vConsole = new VConsole({ theme: 'dark' });
+const vConsole = new VConsole({ theme: 'dark' });
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -20,6 +20,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <SessionScreen />
+    {/* <App></App> */}
   </React.StrictMode>
 );
 

@@ -181,20 +181,7 @@ function useTrackHook() {
   }, [trackSession.LapIdx2])
 
 
-  // useEffect(() => {
 
-
-  //   console.log("useEffect trackSession.actPoint", trackSession.actPoint);
-
-  //   setTrackSession(draft => {
-  //     // draft.actPoint = ret[0].geometry.coordinates[0];
-
-
-  //   })
-
-  //   // LapJson.features = ret;
-
-  // }, [trackSession.actPoint])
 
   return { trackSession, setTrackSession };
 }

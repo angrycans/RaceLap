@@ -97,9 +97,9 @@ function tick(_sessionData, _lapIdx, _trackJosn, _route, _setTrackSession) {
 
     //console.log(alongPath);
     // Update the popup altitude value and marker location
-    //_popup.setHTML(_sessionData[aniIdx_session][4] + ' ' + _sessionData[aniIdx_session][7]);
-    //_marker.setLngLat(lngLat);
-    //_map.panTo(lngLat);
+    // _popup.setHTML(_sessionData[aniIdx_session][4] + ' ' + _sessionData[aniIdx_session][7]);
+    // _marker.setLngLat(lngLat);
+    // _map.panTo(lngLat);
 
     _setTrackSession(draft => {
       draft.actPoint = alongPath;

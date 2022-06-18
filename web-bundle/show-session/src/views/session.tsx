@@ -1,10 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
-// @ts-ignore
-// eslint-disable-next-line import/no-webpack-loader-syntax
-import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import * as turf from "@turf/turf"
 
-import { SafeArea, Button, Space, Collapse, List, CheckList } from 'antd-mobile'
+
+import * as turf from "@turf/turf"
+// eslint-disable-line
+import { SafeArea, Button, Space, Collapse, List, CheckList } from 'antd-mobile'// eslint-disable-line
 import { useTrackSession } from "./useTrackSession"
 
 import { RNMsg, msg, formatMS } from "../libs"
@@ -12,6 +11,9 @@ import { RNMsg, msg, formatMS } from "../libs"
 import { useTrackMap } from './useTrackMap'
 import "./session.css"
 import { tick } from './tick';
+/* eslint import/no-webpack-loader-syntax: off */
+// @ts-ignore
+import mapboxgl from '!mapbox-gl';// eslint-disable-line import/no-webpack-loader-syntax
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiYW5ncnljYW5zIiwiYSI6ImNsMm8ycXdwdzAxeTczY204cXJ5ajBzeXEifQ.6Ln8QhR1LGdJC7YLjdZXsQ';
 

@@ -98,13 +98,6 @@ function tick(_sessionData, _lapIdx, _trackJosn, _route, _map, _marker, _popup, 
     _popup.setHTML(_sessionData[aniIdx_session][4] + ' ' + _sessionData[aniIdx_session][7]);
     _marker.setLngLat(lngLat);
     _panto && _map.panTo(lngLat, { animate: true, duration: 10 });
-    //_panto && _map.jumpTo(lngLat);
-    //_map.jumpTo(lngLat);
-
-    // _setTrackSession(draft => {
-    //   draft.actPoint = alongPath;
-    //   draft.actPointIdx = aniIdx_session;
-    // })
 
 
     if (!usepause) {
