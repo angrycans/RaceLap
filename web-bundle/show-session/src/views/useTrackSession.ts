@@ -4,6 +4,7 @@ import { segmentsIntersect, isFinishLinePassed, msg, formatMS } from "../libs";
 import { useImmer } from "use-immer";
 import { InteractionManager } from "react-native";
 
+import * as turf from "@turf/turf"
 
 
 let sessionData;
@@ -215,7 +216,20 @@ function getLap(_sessionData) {
         if (lastdatetime != 0) {
           //console.log("laptimer ", +pos[5] - lastdatetime, formatMS(+pos[5] - lastdatetime));
 
-          tmplap.push({ prv: prev_idx, idx, timer: +pos[6] - lastdatetime, maxspeed });
+          //tmplap.push({ prv: prev_idx, idx, timer: +pos[6] - lastdatetime, maxspeed });
+          tmplap.push({ prv: prev_idx - 1, idx: idx - 1, timer: +pos[6] - lastdatetime, maxspeed });
+
+
+          var pt = turf.point([pos[1], pos[2]]);
+          var pt_prev = turf.point([prev[1], prev[2]]);
+          var line = turf.lineString([[finishData.lat1, finishData.lng1], [finishData.lat2, finishData.lng2]]);
+
+          var distance_point = turf.distance([pos[1], pos[2]], [prev[1], prev[2]], { units: 'miles' });
+          var distance_fl = turf.distance([finishData.lat1, finishData.lng1], [finishData.lat2, finishData.lng2], { units: 'miles' });
+          var distance = turf.pointToLineDistance(pt, line, { units: 'miles' });
+          var distance_prev = turf.pointToLineDistance(pt_prev, line, { units: 'miles' });
+
+          console.log("distance", distance_point, distance_fl, distance, distance_prev)
 
           maxspeed = 0;
         }
@@ -345,7 +359,14 @@ function getSessionFromTxt(_trackTxt) {
     return;
   }
 
-  let sessionTxt = _trackTxt.sessionTxt.split("\r\n");
+  let sessionTxt;
+
+  if (_trackTxt.sessionTxt.indexOf("\r\n") > 0) {
+    sessionTxt = _trackTxt.sessionTxt.split("\r\n");
+  } else {
+    sessionTxt = _trackTxt.sessionTxt.split("\n");
+  }
+
   if (sessionTxt[sessionTxt.length - 1] === "") {
     sessionTxt.pop();
   };
@@ -372,6 +393,15 @@ function getSessionFromTxt(_trackTxt) {
       tmpMillis = +item[6] - lastItem[6];
 
     }
+
+    //tmpMillis = 10;
+
+    if (idx - 9 >= 0) {
+      tmpvel = sessionTxt[idx - 9].split(",")[4];
+      //[]
+    } else {
+      tmpvel = vel;
+    }
     if (idx === sessionTxt.length - 1) {
       ms = 0;
     } else {
@@ -379,7 +409,12 @@ function getSessionFromTxt(_trackTxt) {
       ms = nexitem[6] - item[6]
 
     }
-    GForc = (((vel - tmpvel) / 3.6) / (9.8 * tmpMillis / 1000)).toFixed(2);
+
+    //https://create.arduino.cc/projecthub/guitar/gps-tacho-g-force-meter-accelerometer-1ea839
+    //GForc = (((vel - tmpvel) / 3.6) / (9.81 * tmpMillis / 1000)).toFixed(3);
+    GForc = (((vel - tmpvel) / 3.6) / (9.8)).toFixed(3);
+    //GForc = Math.sqrt(1 + Math.pow(((vel - tmpvel) / 3.6) / (9.8 * tmpMillis / 1000), 2)).toFixed(2);
+
     lastItem = item;
     item.push(GForc);
     item.push(ms);

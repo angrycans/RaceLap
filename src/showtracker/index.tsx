@@ -46,7 +46,7 @@ const ShowTrackerWebView = () => {
                 useWebKit={true}
                 mediaPlaybackRequiresUserAction={true}
                 mixedContentMode="compatibility"
-                originWhitelist={!__DEV__ ? ['https://', 'http://'] : ["file://"]}//{["file://"]}
+                originWhitelist={__DEV__ ? ['https://', 'http://'] : ["file://"]}//{["file://"]}
                 allowingReadAccessToURL="*"
                 style={{ flex: 1 }}
                 ref={web}

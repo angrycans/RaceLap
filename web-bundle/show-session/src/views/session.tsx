@@ -6,7 +6,7 @@ import * as turf from "@turf/turf"
 import { SafeArea, Button, Space, Collapse, List, CheckList } from 'antd-mobile'// eslint-disable-line
 import { useTrackSession } from "./useTrackSession"
 
-import { RNMsg, msg, formatMS } from "../libs"
+import { RNMsg, formatMS } from "../libs"
 
 import { useTrackMap } from './useTrackMap'
 import "./session.css"
@@ -14,6 +14,33 @@ import { tick } from './tick';
 /* eslint import/no-webpack-loader-syntax: off */
 // @ts-ignore
 import mapboxgl from '!mapbox-gl';// eslint-disable-line import/no-webpack-loader-syntax
+
+import { sessionTxtFromSa, finishTxtFromSa } from './sa'
+import { data_rl } from "./dataRL"
+import { data_sa } from "./dataSa"
+
+setTimeout(() => {
+
+  //console.log("datarl", data_rl);
+  console.log("datasa", sessionTxtFromSa(data_sa));
+  //   1,31.934493,118.986260,31.934659,118.986156
+  // 2,31.935279,118.986374,31.935097,118.986298
+  // 3,31.934911,118.985879,31.934865,118.986073
+  // 4,31.934722,118.985327,31.934918,118.985345
+  // 5,31.935798,118.986160,31.935994,118.986176
+  // 6,31.935468,118.986605,31.935468,118.986803
+  // 7,31.934884,118.987121,31.934764,118.987279
+  // 8,31.934679,118.986682,31.934449,118.986870
+  RNMsg.emit("trackTxt", {
+    //racelap finishLine
+    //finishTxt: JSON.stringify({ "lat1": "31.93441833", "lng1": "118.9867468", "lat2": "31.93453583", "lng2": "118.9866317", "trackname": "liwand1mini" }),
+    finishTxt: JSON.stringify({ "lat1": "31.934679", "lng1": "118.986682", "lat2": "31.934449", "lng2": "118.986870", "trackname": "liwand1mini" }),
+    //sessionTxt: data_rl
+    sessionTxt: sessionTxtFromSa(data_sa)
+  })
+
+
+}, 2000);
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiYW5ncnljYW5zIiwiYSI6ImNsMm8ycXdwdzAxeTczY204cXJ5ajBzeXEifQ.6Ln8QhR1LGdJC7YLjdZXsQ';
 
@@ -45,6 +72,8 @@ export default function App() {
     console.log("sessionscreen didmount--")
     const handleId = (data) => {
       console.log("RNMsg handleId trackTxt", data);
+
+      //return;
       setTrackSession((draft) => {
         draft.trackSession.trackTxt = data;
       })
