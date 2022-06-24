@@ -1,6 +1,6 @@
 
 import mitt from 'mitt'
-import { segmentsIntersect, isFinishLinePassed } from './gpsutils'
+import { segmentsIntersect, IntersectPoint } from './gpsutils'
 
 
 const msg = (window as any).RNMsg = mitt()
@@ -26,7 +26,7 @@ console.log("RaceLap webview init __DEV__", (window as any).__DEV__);
 export {
   MapboxAccessToken,
   segmentsIntersect,
-  isFinishLinePassed,
+  IntersectPoint,
   formatMS,
   msg,
   RNMsg

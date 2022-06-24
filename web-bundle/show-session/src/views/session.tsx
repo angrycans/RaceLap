@@ -54,6 +54,8 @@ export default function App() {
   const popup = useRef(null);
   const marker2 = useRef(null);
   const popup2 = useRef(null);
+
+  const marker_debug = useRef(null);
   const [expanded, setExpanded] = useState("")
   const [lng, setLng] = useState(0);
   const [lat, setLat] = useState(0);
@@ -64,9 +66,7 @@ export default function App() {
 
   const { finishlineJson, sessionJosn, sessionData, trackJosn, LapJson, LapIdx, routeJson, actPoint, actPointIdx } = trackSession;
 
-  //console.log("render trackSession", trackSession);
-
-  useTrackMap(trackSession, trackSession2, map, mapContainer, marker, popup, marker2, popup2, zoom);
+  useTrackMap(trackSession, trackSession2, map, mapContainer, marker, popup, marker2, popup2, zoom, marker_debug);
 
   useEffect(() => {
     console.log("sessionscreen didmount--")

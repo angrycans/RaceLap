@@ -18,56 +18,31 @@ function segmentsIntersect(lat1: number, lon1: number, lat2: number, lon2: numbe
 	return (s >= 0) && (s <= 1) && (t >= 0) && (t <= 1);
 }
 
-class GpsPoint {
-	lat: number;
-	lng: number;
-}
+// 过终点的2点和终点线的交点
+//https://github.com/JimEli/gps_lap_timer/blob/master/utility.h
+//let cp = IntersectPoint({ lat: +prev[1], lng: +prev[2] }, { lat: +pos[1], lng: +pos[2] }, { lat: +finishData.lat1, lng: +finishData.lng1 }, { lat: +finishData.lat2, lng: +finishData.lng2 })
+function IntersectPoint(p1, p2, s0, s1) {
+	let denom: number, numera: number, mua: number; //numerb, mub;
 
-function isFinishLinePassed(start: GpsPoint, finish: GpsPoint, finishLinePoint1: GpsPoint, finishLinePoint2: GpsPoint) {
+	denom = (s1.lng - s0.lng) * (p2.lat - p1.lat) - (s1.lat - s0.lat) * (p2.lng - p1.lng);
+	numera = (s1.lat - s0.lat) * (p1.lng - s0.lng) - (s1.lng - s0.lng) * (p1.lat - s0.lat);
 
+	mua = numera / denom;
 
-	// delta0 = (y4-y3)*(x2-x1) - (x4-x3)*(y2-y1)
-	let delta0 = (finishLinePoint1.lat - finishLinePoint2.lat) * (finish.lng - start.lng) -
-		(finishLinePoint1.lng - finishLinePoint2.lng) * (finish.lat - start.lat);
+	return [p1.lng + mua * (p2.lng - p1.lng), p1.lat + mua * (p2.lat - p1.lat)];
 
-
-
-	if (delta0 == 0.0 || delta0 == -0.0) {
-		//	console.log("delta==0");
-
-		return 0;
-	}
-
-	// delta1 = (x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)
-	let delta1 = (finishLinePoint1.lng - finishLinePoint2.lng) * (start.lat - finishLinePoint2.lat) -
-		(finishLinePoint1.lat - finishLinePoint2.lat * (start.lng - finishLinePoint2.lng));
-
-
-	// delta2 = (x2-x1)*(y1-y3) - (y2-y1)*(x1-x3)
-	let delta2 = (finish.lng - start.lng) * (start.lat - finishLinePoint2.lat) -
-		(finish.lat - start.lat) * (start.lng - finishLinePoint2.lng);
-
-
-	// ka = Delta1/Delta0
-	let ka = delta1 / delta0;
-	// kb = Delta2/Delta0
-	let kb = delta2 / delta0;
-
-	if (ka < 0 || ka > 1 || kb < 0 || kb > 1) {
-
-		return 0;
-	}
-
-	// x= x1+ ka*(x2-x1)
-	let lng = start.lng + ka * (finish.lng - start.lng);
-
-	// y= y1+ ka*(y2-y1)
-	let lat = start.lat + ka * (finish.lat - start.lat);
-
-	console.log("delta3");
-
-	return { lat, lng };
 }
 
 
-export { segmentsIntersect, isFinishLinePassed }
+function Distance(la1, lo1, la2, lo2) {
+	var La1 = la1 * Math.PI / 180.0;
+	var La2 = la2 * Math.PI / 180.0;
+	var La3 = La1 - La2;
+	var Lb3 = lo1 * Math.PI / 180.0 - lo2 * Math.PI / 180.0;
+	var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(La3 / 2), 2) + Math.cos(La1) * Math.cos(La2) * Math.pow(Math.sin(Lb3 / 2), 2)));
+	s = s * 6378.137; //地球半径
+	s = Math.round(s * 10000) / 10000;
+	return s
+}
+
+export { segmentsIntersect, Distance, IntersectPoint }

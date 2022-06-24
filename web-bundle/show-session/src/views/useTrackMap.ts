@@ -20,7 +20,7 @@ const mapStyle = {
   ],
 };
 
-export function useTrackMap(trackSession, trackSession2, map, mapContainer, marker, popup, marker2, popup2, zoom) {
+export function useTrackMap(trackSession, trackSession2, map, mapContainer, marker, popup, marker2, popup2, zoom, marker_debug) {
   useEffect(() => {
     const { finishlineJson, sessionJosn, sessionData, trackJosn, LapJson, LapIdx, routeJson, actPoint, actPointIdx } = trackSession;
 
@@ -40,7 +40,7 @@ export function useTrackMap(trackSession, trackSession2, map, mapContainer, mark
     };
 
     if (map.current) {
-      changeColorline(trackSession, trackSession2, map, marker, popup, marker2, popup2)
+      changeColorline(trackSession, trackSession2, map, marker, popup, marker2, popup2, marker_debug)
 
       return
     };
@@ -105,6 +105,17 @@ export function useTrackMap(trackSession, trackSession2, map, mapContainer, mark
             'line-color': '#007cbf'
           }
         });
+
+        marker_debug.current = new mapboxgl.Marker({
+          color: 'black',
+          scale: 1,
+          draggable: false,
+          pitchAlignment: 'auto',
+          rotationAlignment: 'auto'
+        })
+          .setLngLat(finishlineJson.geometry.coordinates[0])
+          .addTo(map.current)
+        //  marker.current.setLngLat(actPoint);
       }
 
       map.current.addSource('colorline', {
@@ -125,7 +136,7 @@ export function useTrackMap(trackSession, trackSession2, map, mapContainer, mark
           'line-color': ['get', 'color']
         }
       });
-      popup.current = new mapboxgl.Popup({ closeButton: false, className: "apple-popup" });
+      popup.current = new mapboxgl.Popup({ closeOnClick: false, closeButton: false, className: "apple-popup" });
       marker.current = new mapboxgl.Marker({
         color: 'red',
         scale: 0.5,
@@ -159,7 +170,7 @@ export function useTrackMap(trackSession, trackSession2, map, mapContainer, mark
         }
       });
 
-      popup2.current = new mapboxgl.Popup({ closeButton: false, className: "apple-popup2" });
+      popup2.current = new mapboxgl.Popup({ closeOnClick: false, closeButton: false, className: "apple-popup2" });
 
     });
 
@@ -197,7 +208,7 @@ function changeMarker2(_lapidx, _marker, _actPoint = null, _popup = null, _map =
 }
 
 
-function changeColorline(_trackSession, _trackSession2, _map, _marker, _popup, _marker2, _popup2) {
+function changeColorline(_trackSession, _trackSession2, _map, _marker, _popup, _marker2, _popup2, _marker_debug) {
 
   if (_trackSession.LapIdx === -1) {
     //map.current.getSource("sessionroute").setData(null);
@@ -212,8 +223,8 @@ function changeColorline(_trackSession, _trackSession2, _map, _marker, _popup, _
     _map.current && _map.current.panTo(_trackSession.actPoint);
     _marker.current && _marker.current.setLngLat(_trackSession.actPoint);
     _popup.current && _popup.current.setHTML(_trackSession.sessionData[_trackSession.actPointIdx][4] + ' ' + _trackSession.sessionData[_trackSession.actPointIdx][7]);
-
     // map.current.getSource("colorline").setData(LapJson);
+    _marker_debug.current && _marker_debug.current.setLngLat(_trackSession.trackJosn.lap[_trackSession.LapIdx].cp);
   }
 
   if (_trackSession2.LapIdx == null) {
