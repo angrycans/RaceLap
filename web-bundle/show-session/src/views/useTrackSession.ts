@@ -6,16 +6,6 @@ import { InteractionManager } from "react-native";
 
 import * as turf from "@turf/turf"
 
-function Distance(la1, lo1, la2, lo2) {
-  var La1 = la1 * Math.PI / 180.0;
-  var La2 = la2 * Math.PI / 180.0;
-  var La3 = La1 - La2;
-  var Lb3 = lo1 * Math.PI / 180.0 - lo2 * Math.PI / 180.0;
-  var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(La3 / 2), 2) + Math.cos(La1) * Math.cos(La2) * Math.pow(Math.sin(Lb3 / 2), 2)));
-  s = s * 6378.137; //地球半径
-  s = Math.round(s * 10000) / 10000;
-  return s
-}
 
 
 let finishData;
@@ -206,23 +196,23 @@ function useTrackSession(_map, _marker, _popup, _marker2, _popup2) {
 function getLap(_sessionData) {
   console.log("getlap start...")
 
-  let prev = null;
-  let prev_idx = 0;
-  let lastdatetime = 0;
-  let tmplap = [];
+  let prevPoint = null; //prev point
+  let prev_idx = 0;     //prev segmentsIntersect point idx in _sessionData
+  let lastdatetime = 0; //prev  segmentsIntersect time mills()
+  let tmplap = [];      //lap info
   let maxspeed = 0;
-  let prevItem;
-  let prevprevItem;
-  let prev_cp;
+  let prevItem;         //prev segmentsIntersect item  endpoint
+  let prevprevItem;     //prev segmentsIntersect item  startpoint
+  let prev_intersectpoint;          //prev segmentsIntersect point startpoint-->endpoint intersect finishling
 
 
   _sessionData.forEach((pos, idx) => {
 
-    if (prev) {
-      let isChecked = segmentsIntersect(parseFloat(pos[1]), parseFloat(pos[2]), parseFloat(prev[1]), parseFloat(prev[2]), finishData.lat1, finishData.lng1, finishData.lat2, finishData.lng2);
+    if (prevPoint) {
+      let isChecked = segmentsIntersect(parseFloat(pos[1]), parseFloat(pos[2]), parseFloat(prevPoint[1]), parseFloat(prevPoint[2]), finishData.lat1, finishData.lng1, finishData.lat2, finishData.lng2);
       if (isChecked) {
         // console.log("isChecked ", pos, prev, idx);
-        let cp = IntersectPoint({ lat: +prev[1], lng: +prev[2] }, { lat: +pos[1], lng: +pos[2] }, { lat: +finishData.lat1, lng: +finishData.lng1 }, { lat: +finishData.lat2, lng: +finishData.lng2 })
+        let intersectP = IntersectPoint({ lat: +prevPoint[1], lng: +prevPoint[2] }, { lat: +pos[1], lng: +pos[2] }, { lat: +finishData.lat1, lng: +finishData.lng1 }, { lat: +finishData.lat2, lng: +finishData.lng2 })
 
         if (lastdatetime != 0) {
           //console.log("laptimer ", +pos[5] - lastdatetime, formatMS(+pos[5] - lastdatetime));
@@ -232,33 +222,33 @@ function getLap(_sessionData) {
 
 
           var pt = turf.point([pos[1], pos[2]]);
-          var pt_prev = turf.point([prev[1], prev[2]]);
+          var pt_prev = turf.point([prevPoint[1], prevPoint[2]]);
           var line = turf.lineString([[finishData.lat1, finishData.lng1], [finishData.lat2, finishData.lng2]]);
 
           // var distance_point = turf.distance([pos[1], pos[2]], [prev[1], prev[2]], { units: 'miles' });
 
-          console.log("prev_cp", prev_cp, cp)
-          var distance_point = turf.distance([prevprevItem[1], prevprevItem[2]], [prev[1], prev[2]], { units: 'kilometers' });
-          var distance_point0 = turf.distance([prevprevItem[1], prevprevItem[2]], [prev_cp[1], prev_cp[0]], { units: 'kilometers' });
-          var distance_point1 = turf.distance([prev[1], prev[2]], [cp[1], cp[0]], { units: 'kilometers' });
+          console.log("prev_cp", prev_intersectpoint, intersectP)
+          // var distance_point = turf.distance([prevprevItem[1], prevprevItem[2]], [prevPoint[1], prevPoint[2]], { units: 'kilometers' });
+          var distance_point0 = turf.distance([prevprevItem[1], prevprevItem[2]], [prev_intersectpoint[1], prev_intersectpoint[0]], { units: 'kilometers' });
+          var distance_point1 = turf.distance([prevPoint[1], prevPoint[2]], [intersectP[1], intersectP[0]], { units: 'kilometers' });
           let off0 = (distance_point0 / +prevprevItem[4]) * 60 * 60 * 1000;
-          let off1 = (distance_point1 / +prev[4]) * 60 * 60 * 1000;
+          let off1 = (distance_point1 / +prevPoint[4]) * 60 * 60 * 1000;
 
-          console.log("distance", distance_point, (+prev[6] - lastdatetime), Math.round(off0), Math.round(off1), (+prev[6] - lastdatetime) + Math.round(off1) - Math.round(off0));
-          tmplap.push({ prv: prev_idx - 1, idx: idx - 1, timer: (+prev[6] - lastdatetime) - Math.round(off0) + Math.round(off1), maxspeed, cp });
+          console.log("distance", distance_point0, (+prevPoint[6] - lastdatetime), Math.round(off0), Math.round(off1), (+prevPoint[6] - lastdatetime) + Math.round(off1) - Math.round(off0));
+          tmplap.push({ prv: prev_idx - 1, idx: idx - 1, timer: (+prevPoint[6] - lastdatetime) - Math.round(off0) + Math.round(off1), maxspeed, intersectP });
 
 
           maxspeed = 0;
 
         }
-        lastdatetime = +prev[6];
+        lastdatetime = +prevPoint[6];
         prev_idx = idx;
         prevItem = pos;
-        prevprevItem = prev;
-        prev_cp = cp;
+        prevprevItem = prevPoint;
+        prev_intersectpoint = intersectP;
       }
     }
-    prev = pos;
+    prevPoint = pos;
     if (+pos[4] > maxspeed) {
       maxspeed = +pos[4]
     }

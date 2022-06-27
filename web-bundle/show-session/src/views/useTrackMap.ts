@@ -14,8 +14,8 @@ const mapStyle = {
       "url": "mapbox://mapbox.mapbox-streets-v8"
     },
   },
-  "sprite": "mapbox://sprites/mapbox/dark-v10",
-  "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
+  // "sprite": "mapbox://sprites/mapbox/dark-v10",
+  // "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
   "layers": [
   ],
 };
@@ -52,7 +52,8 @@ export function useTrackMap(trackSession, trackSession2, map, mapContainer, mark
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: mapStyle,
+      // style: mapStyle,
+      style: 'blank',
       center: actPoint,
       zoom: zoom
     });
@@ -224,7 +225,7 @@ function changeColorline(_trackSession, _trackSession2, _map, _marker, _popup, _
     _marker.current && _marker.current.setLngLat(_trackSession.actPoint);
     _popup.current && _popup.current.setHTML(_trackSession.sessionData[_trackSession.actPointIdx][4] + ' ' + _trackSession.sessionData[_trackSession.actPointIdx][7]);
     // map.current.getSource("colorline").setData(LapJson);
-    _marker_debug.current && _marker_debug.current.setLngLat(_trackSession.trackJosn.lap[_trackSession.LapIdx].cp);
+    _marker_debug.current && _marker_debug.current.setLngLat(_trackSession.trackJosn.lap[_trackSession.LapIdx].intersectP);
   }
 
   if (_trackSession2.LapIdx == null) {
