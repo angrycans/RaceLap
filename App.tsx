@@ -1,10 +1,11 @@
-import * as React from 'react';
-import { View, Text } from 'react-native';
+import React, { useRef, useEffect, useState } from 'react';
+import { View, Text, Linking, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import VConsole from '@kafudev/react-native-vconsole'
-import { Button, lightColors, createTheme, ThemeProvider } from '@rneui/themed';
+import { lightColors, createTheme, ThemeProvider } from '@rneui/themed';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 
 import HomeScreen from './src/home';
@@ -17,10 +18,11 @@ import ListFileAppScreen from './src/mapbox/listfile'
 import ViewTxt from './src/mapbox/view-txt'
 import ShowTrackerWebView from './src/showtracker'
 import SettingScreen from './src/setting'
-import demoh5 from './src/demoh5'
+import Demoh5 from './src/demoh5'
 
 
 import { msg } from './src/libs'
+
 
 
 const theme = createTheme({
@@ -34,9 +36,30 @@ const theme = createTheme({
 
 
 const Stack = createNativeStackNavigator();
-//import VConsole from '@sigmayun/react-native-vconsole'
+
+
+var linkid;
 
 function App() {
+
+  useEffect(() => {
+
+    if (Platform.OS === "ios") {
+
+      Linking.getInitialURL().then((res: any) => {
+        console.log("Linking.getInitialURL", res)
+      }).catch(() => { });
+      linkid = Linking.addEventListener("url", (event) => {
+        console.log("_handleOpenURL", event, decodeURI(event.url));
+      });
+
+    }
+
+    return () => {
+      Linking.removeSubscription(linkid);
+
+    }
+  }, [])
   return (
     <ThemeProvider theme={theme}>
       <NavigationContainer>
@@ -59,7 +82,7 @@ function App() {
           <Stack.Screen name="ShowTrackerWebView" component={ShowTrackerWebView} />
           <Stack.Screen name="SettingScreen" component={SettingScreen} />
           <Stack.Screen name="RouteAnimdemo" component={RouteAnimdemo} />
-          <Stack.Screen name="demoh5" component={demoh5} />
+          <Stack.Screen name="demoh5" component={Demoh5} />
 
         </Stack.Navigator>
         <View>

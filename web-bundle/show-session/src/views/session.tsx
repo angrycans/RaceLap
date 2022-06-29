@@ -184,7 +184,7 @@ export default function App() {
         Lat: {lat} | Lng: {lng} | Zoom: {zoom}
       </div>
 
-      <div ref={mapContainer} className="map-container" >
+      <div id="map" ref={mapContainer} className="map-container" >
 
       </div>
       <div>

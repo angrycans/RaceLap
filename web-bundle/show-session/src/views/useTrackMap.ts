@@ -8,14 +8,17 @@ import mapboxgl from '!mapbox-gl';// eslint-disable-line import/no-webpack-loade
 const mapStyle = {
   "version": 8,
   "name": "Dark",
-  "sources": {
-    "mapbox": {
-      "type": "vector",
-      "url": "mapbox://mapbox.mapbox-streets-v8"
-    },
-  },
-  // "sprite": "mapbox://sprites/mapbox/dark-v10",
-  // "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
+  "sources": {},
+  // "sources": {
+  //   "mapbox": {
+  //     "type": "vector",
+  //     "url": "mapbox://mapbox.mapbox-streets-v8"
+  //   },
+  // },
+  //"sprite": "mapbox://sprites/mapbox/dark-v10",
+  //"glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
+  //"sprite": "https://lzxue.github.io/font-glyphs/sprite/sprite",
+  //"glyphs": "https://gw.alipayobjects.com/os/antvdemo/assets/mapbox/glyphs/{fontstack}/{range}.pbf",
   "layers": [
   ],
 };
@@ -52,8 +55,7 @@ export function useTrackMap(trackSession, trackSession2, map, mapContainer, mark
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      // style: mapStyle,
-      style: 'blank',
+      style: mapStyle,
       center: actPoint,
       zoom: zoom
     });

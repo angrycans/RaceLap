@@ -8,7 +8,7 @@ import { HttpWebIP } from '../libs'
 
 
 // ...
-const demoh5 = () => {
+const Demoh5 = () => {
 
     console.log("HttpWebIP", HttpWebIP);
 
@@ -36,4 +36,4 @@ const demoh5 = () => {
 }
 
 
-export default demoh5;
+export default Demoh5;
