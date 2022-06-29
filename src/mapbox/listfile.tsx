@@ -1,7 +1,8 @@
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { ListItem, Avatar, TabView, Tab, Button, hstack } from '@rneui/themed'
+import { ListItem, Avatar, TabView, Tab, Button } from '@rneui/themed'
+import SafeAreaView from 'react-native-safe-area-view';
 
 import { connect, withRedux, IProps } from "sim-redux";
 
@@ -53,8 +54,10 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
   render() {
     console.log("this.props", this.props)
     const { navigation } = this.props;
+
+    navigation.setOptions({ headerShown: true })
     return (
-      <>
+      <SafeAreaView style={{ flex: 1 }}>
         <Tab
           value={this.props.tabIndx}
           onChange={(e) => { this.props.actions.changeTab(e) }}
@@ -94,7 +97,7 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
                             this.props.actions.downLocalFilefromserver(item);
                           } else {
                             console.log("navgtion", item.name.indexOf("RL"));
-                            if (item.name.indexOf("RL") >= 0) {
+                            if (item.name.indexOf("RL") >= 0 || item.name.indexOf(".sa") >= 0) {
                               //  navigation.navigate('MapBoxApp', { name: item.name });
                               navigation.navigate('ShowTrackerWebView', { name: item.name });
                             } else {
@@ -206,7 +209,7 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
           </TabView.Item>
         </TabView>
 
-      </>
+      </SafeAreaView>
 
     );
   }

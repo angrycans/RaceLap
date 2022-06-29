@@ -2,6 +2,7 @@ import MapboxGL from '@rnmapbox/maps';
 import { StyleSheet, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import React, { useRef, useEffect, useState } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 import { HttpWebIP } from '../libs'
 
@@ -9,6 +10,8 @@ import { useShowTrackTxtHook } from './hooks'
 
 // ...
 const ShowTrackerWebView = () => {
+    const navigation = useNavigation();
+    navigation.setOptions({ headerShown: true })
 
     console.log("HttpWebIP", HttpWebIP);
 

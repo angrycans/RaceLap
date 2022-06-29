@@ -1,12 +1,14 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, Text, Linking, Platform } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { View, Text, Button, Linking, Platform } from 'react-native';
+import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import VConsole from '@kafudev/react-native-vconsole'
 import { lightColors, createTheme, ThemeProvider } from '@rneui/themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 
 import HomeScreen from './src/home';
 import DetailsScreen from './src/details';
@@ -19,9 +21,10 @@ import ViewTxt from './src/mapbox/view-txt'
 import ShowTrackerWebView from './src/showtracker'
 import SettingScreen from './src/setting'
 import Demoh5 from './src/demoh5'
-
+import ReceiveShareModal from './src/receiveshare-model'
 
 import { msg } from './src/libs'
+import { UrlTile } from 'react-native-maps';
 
 
 
@@ -36,11 +39,106 @@ const theme = createTheme({
 
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
+const HomeStack = createNativeStackNavigator();
 
-var linkid;
+function HomeStackScreen() {
+  return (
+    <HomeStack.Navigator initialRouteName="Home">
+      <HomeStack.Screen name="Home" component={HomeScreen} />
+      <HomeStack.Screen name="ListFileApp" component={ListFileAppScreen} />
+      <HomeStack.Screen name="ShowTrackerWebView" component={ShowTrackerWebView} />
+    </HomeStack.Navigator>
+  );
+}
 
 function App() {
+
+  const navigationRef = useNavigationContainerRef();
+  const [initURL, setURL] = useState(null);
+
+  function handleShareUrl(event) {
+    navigationRef.navigate('ReceiveShareModal', { url: event.url });
+  }
+  useEffect(() => {
+
+    if (Platform.OS === "ios") {
+
+      Linking.getInitialURL().then((res: string) => {
+        console.log("Linking.getInitialURL", res);
+        if (res) {
+          // navigationRef.navigate('ReceiveShareModal', { url: res });
+          if (res.indexOf("file://") >= 0) {
+            setURL(res);
+          }
+
+        }
+
+      }).catch((e) => { console.log("Linking.getInitialURL()", e) });
+      Linking.addEventListener("url", handleShareUrl);
+
+    }
+
+    return () => {
+      Linking.removeEventListener("url", handleShareUrl);
+
+    }
+  }, [])
+
+
+  console.log("navigationRef.current", navigationRef.current);
+  console.log("initURL", initURL);
+  if (navigationRef.current && initURL) {
+    console.log("handleShareUrl go");
+    handleShareUrl({ url: initURL });
+    setURL(null);
+  }
+
+
+
+
+
+  return (
+    <ThemeProvider theme={theme}>
+      <SafeAreaProvider>
+        <NavigationContainer ref={navigationRef}>
+
+          <Stack.Navigator
+            initialRouteName="HomeScreen"
+            screenOptions={{
+              headerShown: true,
+
+            }}
+
+          >
+            <Stack.Group
+              screenOptions={{ headerStyle: { backgroundColor: 'white' } }}
+            >
+
+
+              <Stack.Screen name="HomeScreen" component={HomeScreen} />
+
+              <Stack.Screen name="ListFileApp" component={ListFileAppScreen} />
+              <Stack.Screen name="ShowTrackerWebView" component={ShowTrackerWebView} />
+
+            </Stack.Group>
+
+
+            <Stack.Group screenOptions={{ presentation: 'modal' }}>
+              <Stack.Screen name="ReceiveShareModal" component={ReceiveShareModal} />
+            </Stack.Group>
+          </Stack.Navigator>
+          <View>
+            <VConsole />
+          </View>
+        </NavigationContainer>
+      </SafeAreaProvider >
+    </ThemeProvider >
+  );
+}
+
+function App2() {
 
   useEffect(() => {
 

@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@kafudev/react-native-vconsole": "^0.1.11",
+    "@react-navigation/bottom-tabs": "^6.3.1",
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/native-stack": "^6.6.2",
     "@rneui/base": "^4.0.0-rc.4",
@@ -38,6 +39,7 @@
     "react-native-maps": "^0.31.1",
     "react-native-modal": "^13.0.1",
     "react-native-safe-area-context": "^4.2.5",
+    "react-native-safe-area-view": "^1.1.1",
     "react-native-screens": "^3.13.1",
     "react-native-vector-icons": "^9.1.0",
     "react-native-webview": "^11.21.1",

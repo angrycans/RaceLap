@@ -29,7 +29,7 @@ export type GPSPOSTION = {
 let HttpWebIP;
 let ServerIP;
 if (__DEV__) {
-    HttpWebIP = "http://192.168.3.20:3000/";
+    HttpWebIP = "http://172.19.8.161:3000/";
     ServerIP = "http://172.19.3.47";
 } else {
     HttpWebIP = "./web.bundle/showsession/";

@@ -1,9 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Button, View, Text, Linking, Platform } from 'react-native';
+import { Button, View, Text, Linking, Platform, StatusBar } from 'react-native';
 import moment from 'moment';
-
+import SafeAreaView from 'react-native-safe-area-view';
 
 import { useNavigation } from '@react-navigation/native';
+import { msg } from '../libs'
 
 
 
@@ -11,12 +12,17 @@ function HomeScreen() {
 
     const navigation = useNavigation();
 
-
-
-
     return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <SafeAreaView style={{
+            flex: 1, alignItems: 'center',
+            justifyContent: 'center',
+            // backgroundColor: '#6a51ae'
+        }}>
 
+            <StatusBar
+                barStyle="light-content"
+                backgroundColor='blue'
+            />
             <Text>Home Screen</Text>
             <Button
                 title="Go to ShowTrackerWebView"
@@ -50,7 +56,12 @@ function HomeScreen() {
                 title="Go to demoh5"
                 onPress={() => navigation.navigate('demoh5')}
             />
-        </View>
+
+            <Button
+                onPress={() => navigation.navigate('ReceiveShareModal')}
+                title="Open Modal"
+            />
+        </SafeAreaView>
     );
 
 }

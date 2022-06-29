@@ -314,7 +314,9 @@ class FileUtil {
 
 const rnfile = new FileUtil();
 
+setTimeout(() => {
+    rnfile.mkdefaultRLDATAPathDir();
 
-rnfile.mkdefaultRLDATAPathDir();
+}, 500);
 
 export default rnfile;
