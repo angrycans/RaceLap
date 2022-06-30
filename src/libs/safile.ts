@@ -12,9 +12,9 @@ async function is_safile(filePath) {
   //   console.log("is_sa", e)
   // })
 
-  let res = await RNFS.read(decodeURI(filePath), 1024, 0);
+  //let res = await RNFS.read(decodeURI(filePath), 1024, 0);
 
-  //let res = await RNFS.readFile(decodeURI(filePath));
+  const res = await RNFS.readFile(decodeURI(filePath));
   if (res.indexOf("#SW=SpeedAngle R4Apex") > 0) {
     //return {name:res.}
     let pos = res.indexOf("#S=");
@@ -23,16 +23,12 @@ async function is_safile(filePath) {
     pos = res.indexOf("#D=");
     let date = res.substring(pos + 3, res.indexOf("=", pos + 3)).trim();
 
-    // console.log({ name, date })
-
     date = moment(date, "MM-DD-YYYY HH:mm:ss").format("YYYY/MM/DD HH:mm");
-
     pos = decodeURI(filePath).lastIndexOf("/");
     console.log("file pos", pos, decodeURI(filePath).length - pos - 1)
     let filename = decodeURI(filePath).substring(pos + 1, pos + 1 + 100).trim();
-    // console.log({ name, date, filename })
-    //console.log(ParseSa(res));
 
+    // console.log(ParseSa(res));
     await RNFS.copyFile(decodeURI(filePath), defaultRLDATAPath + filename);
     return { name, date, filename }
   }
@@ -42,7 +38,7 @@ async function is_safile(filePath) {
 }
 
 function ParseSa(txt) {
-  console.log("parsesa 0 ", txt);
+  // console.log("parsesa 0 ", txt);
   //console.log("parsesa 4 ", ("#D=SW9\r\n90PS===123").match(/#D=([\s\S]*)=/)[1]);
   //console.log("parsesa 5", getStr(res, "#D=", "="));
   const trackInfo = Array.from(txt.matchAll(/#(\w*)=([^=<>]*)/igm)).reduce((acc, [, key, val]) => (acc[key] = val.trim(), acc), {})
