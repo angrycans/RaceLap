@@ -62,14 +62,14 @@ function ParseSa(txt) {
 
     const time = +(m * 60 + s).toFixed(3);
 
-    const ptime = +(time - (pm * 60 + ps)).toFixed(3);
+    const time_s = +(time - (pm * 60 + ps)).toFixed(3);
 
-    const time3 = +(((row[`S${item[1] - 1}`]?.time3) || 0) + ptime).toFixed(3);
+    const time_t = +(((row[`S${item[1] - 1}`]?.time_t) || 0) + time_s).toFixed(3);
 
     row[`S${item[1]}`] = {
       time,
-      ptime,
-      time3,
+      time_s,
+      time_t,
       avgSpeed, maxSpeed, maxPlusG, maxMinusG
     };
     isNewRow && acc.push(row);
