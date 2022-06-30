@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, Share } from 'react-native';
 
 import { ListItem, Avatar, TabView, Tab, Button } from '@rneui/themed'
 import SafeAreaView from 'react-native-safe-area-view';
@@ -47,6 +47,28 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
 
   }
 
+
+  onShare = async (url, name, size) => {
+    try {
+      const result = await Share.share({
+        message:
+          `RaceLap share ${name}(${filesize(size)}) to you.`,
+        url
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   componentWillUnmount() {
   }
@@ -114,8 +136,11 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
                               title=""
                               onPress={async () => {
                                 //navigation.navigate('ViewTxtScreen', { name: item.name });
-                                navigation.navigate('MapBoxApp', { name: item.name });
-                                reset()
+                                //navigation.navigate('MapBoxApp', { name: item.name });
+
+                                reset();
+                                console.log("item", item);
+                                await this.onShare(item.path, item.name, item.size);
                               }
                               }
                               icon={{ name: 'info', color: 'white' }}
@@ -222,13 +247,13 @@ export default class ListFileApp extends React.Component<IProps<IState, IlistAct
   renderItem={({ item }) => <Text style={styles.item}
     onPress={async () => {
       await this.props.actions.downfile(item);
-
+ 
       console.log("downfile ok")
-
+ 
       await this.props.actions.getMcuCfg();
       console.log("getMcuCfg ok")
       navigation.navigate('MapBoxApp');
-
+ 
     }}>{item}</Text>}
 />
 </View>
