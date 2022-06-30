@@ -23,11 +23,11 @@ const mapStyle = {
   ],
 };
 
-export function useTrackMap(trackSession, trackSession2, map, mapContainer, marker, popup, marker2, popup2, zoom, marker_debug) {
+export function useTrackMap(trackSession, trackSession2, error, map, mapContainer, marker, popup, marker2, popup2, zoom, marker_debug) {
   useEffect(() => {
     const { finishlineJson, sessionJosn, sessionData, trackJosn, LapJson, LapIdx, routeJson, actPoint, actPointIdx } = trackSession;
 
-    console.log("useTrackMap didmount ", trackSession, trackSession2);
+    console.log("useTrackMap didmount ", trackSession, trackSession2, error);
     const point = {
       'type': 'FeatureCollection',
       'features': [

@@ -18,10 +18,11 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <React.StrictMode>
-    <SessionScreen />
-    {/* <App></App> */}
-  </React.StrictMode>
+  // <React.StrictMode>
+  //   <SessionScreen />
+  //   {/* <App></App> */}
+  // </React.StrictMode>
+  <SessionScreen />
 );
 
 // If you want to start measuring performance in your app, pass a function

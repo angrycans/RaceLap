@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 
 import * as turf from "@turf/turf"
 // eslint-disable-line
-import { SafeArea, Button, Space, Collapse, List, CheckList } from 'antd-mobile'// eslint-disable-line
+import { SafeArea, Button, Space, Collapse, List, CheckList, Toast } from 'antd-mobile'// eslint-disable-line
 import { useTrackSession } from "./useTrackSession"
 
 import { RNMsg, formatMS } from "../libs"
@@ -19,28 +19,28 @@ import { sessionTxtFromSa, finishTxtFromSa } from './sa'
 import { data_rl } from "./dataRL"
 import { data_sa } from "./dataSa"
 
-setTimeout(() => {
+// setTimeout(() => {
 
-  //console.log("datarl", data_rl);
-  console.log("datasa", sessionTxtFromSa(data_sa));
-  //   1,31.934493,118.986260,31.934659,118.986156
-  // 2,31.935279,118.986374,31.935097,118.986298
-  // 3,31.934911,118.985879,31.934865,118.986073
-  // 4,31.934722,118.985327,31.934918,118.985345
-  // 5,31.935798,118.986160,31.935994,118.986176
-  // 6,31.935468,118.986605,31.935468,118.986803
-  // 7,31.934884,118.987121,31.934764,118.987279
-  // 8,31.934679,118.986682,31.934449,118.986870
-  RNMsg.emit("trackTxt", {
-    //racelap finishLine
-    //finishTxt: JSON.stringify({ "lat1": "31.93441833", "lng1": "118.9867468", "lat2": "31.93453583", "lng2": "118.9866317", "trackname": "liwand1mini" }),
-    finishTxt: JSON.stringify({ "lat1": "31.934679", "lng1": "118.986682", "lat2": "31.934449", "lng2": "118.986870", "trackname": "liwand1mini" }),
-    //sessionTxt: data_rl
-    sessionTxt: sessionTxtFromSa(data_sa)
-  })
+//   //console.log("datarl", data_rl);
+//   console.log("datasa", sessionTxtFromSa(data_sa));
+//   //   1,31.934493,118.986260,31.934659,118.986156
+//   // 2,31.935279,118.986374,31.935097,118.986298
+//   // 3,31.934911,118.985879,31.934865,118.986073
+//   // 4,31.934722,118.985327,31.934918,118.985345
+//   // 5,31.935798,118.986160,31.935994,118.986176
+//   // 6,31.935468,118.986605,31.935468,118.986803
+//   // 7,31.934884,118.987121,31.934764,118.987279
+//   // 8,31.934679,118.986682,31.934449,118.986870
+//   RNMsg.emit("trackTxt", {
+//     //racelap finishLine
+//     //finishTxt: JSON.stringify({ "lat1": "31.93441833", "lng1": "118.9867468", "lat2": "31.93453583", "lng2": "118.9866317", "trackname": "liwand1mini" }),
+//     finishTxt: JSON.stringify({ "lat1": "31.934679", "lng1": "118.986682", "lat2": "31.934449", "lng2": "118.986870", "trackname": "liwand1mini" }),
+//     //sessionTxt: data_rl
+//     sessionTxt: sessionTxtFromSa(data_sa)
+//   })
 
 
-}, 2000);
+// }, 2000);
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiYW5ncnljYW5zIiwiYSI6ImNsMm8ycXdwdzAxeTczY204cXJ5ajBzeXEifQ.6Ln8QhR1LGdJC7YLjdZXsQ';
 
@@ -60,29 +60,45 @@ export default function App() {
   const [lng, setLng] = useState(0);
   const [lat, setLat] = useState(0);
   const [zoom, setZoom] = useState(17);
-  const { trackSession, trackSession2, setTrackSession } = useTrackSession(map, marker, popup, marker2, popup2);
+  const { trackSession, trackSession2, error, setTrackSession } = useTrackSession(map, marker, popup, marker2, popup2);
   // const { trackSession2, setTrackSession2 } = useTrackSession(map, marker2, popup2);
 
 
   const { finishlineJson, sessionJosn, sessionData, trackJosn, LapJson, LapIdx, routeJson, actPoint, actPointIdx } = trackSession;
 
-  useTrackMap(trackSession, trackSession2, map, mapContainer, marker, popup, marker2, popup2, zoom, marker_debug);
+
+  if (error) {
+    console.log("error---------->", error);
+    Toast.show({
+      icon: 'fail',
+      content: error,
+    })
+    // return;
+  }
+  useTrackMap(trackSession, trackSession2, error, map, mapContainer, marker, popup, marker2, popup2, zoom, marker_debug);
+
 
   useEffect(() => {
     console.log("sessionscreen didmount--")
     const handleId = (data) => {
-      console.log("RNMsg handleId trackTxt", data);
 
-      //return;
+      console.log("RNMsg handleId trackTxt", data);
       setTrackSession((draft) => {
         draft.trackSession.trackTxt = data;
       })
+
+
     }
+
     RNMsg.on("trackTxt", handleId);
+
+    (window as any)?.ReactNativeWebView.postMessage(JSON.stringify({ event: "onLoad" }));
     return () => {
       console.log("sessionscreen undidmount ---")
       RNMsg.off("trackTxt", handleId);
     }
+
+
   }, []);
 
   useEffect(() => {
@@ -104,6 +120,10 @@ export default function App() {
     console.log("new tick", trackSession)
     _tick2 = tick(sessionData, trackSession2.LapIdx, trackJosn, trackSession2.routeJson, map.current, marker2.current, popup2.current, false);
   }
+
+  console.log("window __DEV__", (window as any).__DEV__);
+
+
 
   return (
     <div className="map-wrapper">

@@ -10,25 +10,26 @@ import { useAsyncEffect } from "ahooks"
 function useShowTrackTxtHook() {
 
 
-  const [trackTxt, setTrackTxt] = useImmer({ sessionTxt: "", finishTxt: "" });
+  const [trackTxt, setTrackTxt] = useImmer({ sessionTxt: "", finishTxt: "", filetype: "" });
   const route = useRoute<RouteProp<{ params: { name: string } }>>();
   useAsyncEffect(async () => {
 
     console.log("useShowTrackTxtHook", route);
 
     let file;
+    let file_suffix
     if (route.params && route.params.name) {
       file = route.params.name
-    } else {
-      file = "RL20220612091229.txt";
+      file_suffix = file.substring(file.lastIndexOf(".") + 1);
+    }
+
+
+    if (!file) {
+      console.error("route params file error")
+      return;
     }
     //  route.params.name = 
     const txt = await RNFS.readFile(defaultRLDATAPath + file, 'utf8');
-    // let _sessionTxt = txt.split("\n");
-    // if (_sessionTxt[_sessionTxt.length - 1] == "") {
-    //   _sessionTxt.pop();
-    // };
-
 
     const finishTxt = await RNFS.readFile(defaultRLDATAPath + "track.txt", 'utf8');
     // let finishData = JSON.parse(finishTxt);
@@ -37,9 +38,8 @@ function useShowTrackTxtHook() {
 
       draft.sessionTxt = txt;
       draft.finishTxt = finishTxt;
+      draft.filetype = file_suffix;
 
-      // console.log("txt", txt);
-      // console.log("finishTxt", finishTxt);
 
     })
 

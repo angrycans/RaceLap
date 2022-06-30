@@ -87,16 +87,20 @@ function App() {
   }, [])
 
 
-  console.log("navigationRef.current", navigationRef.current);
-  console.log("initURL", initURL);
-  if (navigationRef.current && initURL) {
-    console.log("handleShareUrl go");
-    handleShareUrl({ url: initURL });
-    setURL(null);
-  }
+  useEffect(() => {
+    if (initURL) {
+      handleShareUrl({ url: initURL });
+      setURL(null);
+    }
+  }, [initURL]);
 
 
+  // console.log("navigationRef.current", navigationRef.current);
+  // console.log("initURL", initURL);
+  // if (navigationRef.current && initURL) {
+  //   console.log("handleShareUrl go");
 
+  // }
 
 
   return (

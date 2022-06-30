@@ -15,33 +15,38 @@ const ShowTrackerWebView = () => {
 
     console.log("HttpWebIP", HttpWebIP);
 
-    function onMessage(data) {
-        console.log("onMessage", data.nativeEvent.data);
+    function onMessage(d) {
+        console.log("onMessage", d);
+        let { event } = JSON.parse(d.nativeEvent.data)
+        if (event == "onLoad") {
+            web.current.injectJavaScript(`window.__DEV__=${__DEV__};`);
+            sendMsg2Web("trackTxt", trackTxt);
+        }
     }
 
     function sendMsg2Web(key: string, data: any) {
-        // console.log("onMessage", data.nativeEvent.data);
-        //let a = { a: 123 };
         console.log("sendMsg2Web", key, data);
         web.current.injectJavaScript(`RNMsg.emit("${key}",${JSON.stringify(data)});true`);
     }
 
     const web = useRef(null);
     const { trackTxt, setTrackTxt } = useShowTrackTxtHook();
-    useEffect(() => {
-        console.log("ShowTrackerWebView __dev__=", __DEV__, web.current)
-        if (trackTxt.finishTxt != "" && trackTxt.sessionTxt != "" && web.current) {
+    // useEffect(() => {
+    //     console.log("ShowTrackerWebView __dev__=", __DEV__, web.current)
+    //     if (trackTxt.finishTxt != "" && trackTxt.sessionTxt != "" && web.current) {
 
-            //sendMsg2Web("trackTxt", trackTxt);
-            setTimeout(() => {
-                sendMsg2Web("trackTxt", trackTxt);
-            }, 2000);
+    //         // //sendMsg2Web("trackTxt", trackTxt);
+    //         // setTimeout(() => {
+    //         //     // sendMsg2Web("trackTxt", trackTxt);
+    //         // }, 2000);
 
-        }
-    }, [trackTxt])
+    //     }
+    // }, [trackTxt])
+
+
     return (
         <View style={{ flex: 1 }}>
-            <WebView source={{ uri: HttpWebIP + "index.html" }}
+            {trackTxt && <WebView source={{ uri: HttpWebIP + "index.html" }}
                 allowFileAccess={true}
                 javaScriptEnabled={true}
                 decelerationRate='normal'
@@ -54,8 +59,7 @@ const ShowTrackerWebView = () => {
                 style={{ flex: 1 }}
                 ref={web}
                 onMessage={onMessage}
-                injectJavaScript={`console.log("init...");window.__DEV__=${__DEV__}`}
-            />
+            />}
         </View>
     )
 

@@ -5,6 +5,7 @@ import { useImmer } from "use-immer";
 import { InteractionManager } from "react-native";
 
 import * as turf from "@turf/turf"
+import { getStringBytes } from "lib/tool";
 
 
 
@@ -48,9 +49,9 @@ let LapJson = {
 function useTrackSession(_map, _marker, _popup, _marker2, _popup2) {
 
 
-  const [MtrackSession, setTrackSession] = useImmer({ trackSession: { trackTxt: null, LapIdx: -1, sessionData: null, finishlineJson, sessionJosn, trackJosn, LapJson, routeJson: null, actPoint: null, actPointIdx: 0 }, trackSession2: { trackTxt: null, LapIdx: null, sessionData: null, finishlineJson, sessionJosn, trackJosn, LapJson, routeJson: null, actPoint: null, actPointIdx: 0 } });
+  const [MtrackSession, setTrackSession] = useImmer({ trackSession: { trackTxt: null, LapIdx: -1, sessionData: null, finishlineJson, sessionJosn, trackJosn, LapJson, routeJson: null, actPoint: null, actPointIdx: 0 }, trackSession2: { trackTxt: null, LapIdx: null, sessionData: null, finishlineJson, sessionJosn, trackJosn, LapJson, routeJson: null, actPoint: null, actPointIdx: 0 }, error: null });
   //const route = useRoute<RouteProp<{ params: { name: string } }>>();
-  const { trackSession, trackSession2 } = MtrackSession;
+  const { trackSession, trackSession2, error } = MtrackSession;
   useEffect(() => {
     ; (async () => {
       console.log("useTrackSession init----")
@@ -61,7 +62,19 @@ function useTrackSession(_map, _marker, _popup, _marker2, _popup2) {
         return;
       }
 
-      let { lap, sessionData, finishData } = getSessionFromTxt(trackSession.trackTxt);
+
+
+      let ret = getSessionFromTxt(trackSession.trackTxt);
+      let { lap, sessionData, finishData, err } = ret;
+      console.log("getSessionFromTxt ret", ret);
+
+      if (err) {
+
+        setTrackSession(draft => {
+          draft.error = err;
+        });
+        return;
+      }
 
       setTrackSession(draft => {
 
@@ -97,7 +110,7 @@ function useTrackSession(_map, _marker, _popup, _marker2, _popup2) {
     return () => {
 
     }
-  }, [trackSession.trackTxt, trackSession2.trackTxt])
+  }, [trackSession.trackTxt])
 
 
 
@@ -189,7 +202,7 @@ function useTrackSession(_map, _marker, _popup, _marker2, _popup2) {
 
 
 
-  return { trackSession, trackSession2, setTrackSession };
+  return { trackSession, trackSession2, error, setTrackSession };
 }
 
 
@@ -365,85 +378,102 @@ function loadLap(data: [string], idx: number, prev: number, color = 0) {
 
 
 function getSessionFromTxt(_trackTxt) {
-  if (!_trackTxt) {
-    console.log("_trackTxt is null ,return")
-    return;
-  }
 
-  let sessionTxt;
 
-  if (_trackTxt.sessionTxt.indexOf("\r\n") > 0) {
-    sessionTxt = _trackTxt.sessionTxt.split("\r\n");
-  } else {
-    sessionTxt = _trackTxt.sessionTxt.split("\n");
-  }
+  try {
+    if (!((_trackTxt.filetype == "sa") || (_trackTxt.filetype == "rl") || (_trackTxt.filetype == "txt"))) {
 
-  if (sessionTxt[sessionTxt.length - 1] === "") {
-    sessionTxt.pop();
-  };
+      return { err: "file unkown " }
+    }
 
-  let lastItem;
-
-  // sessionData = sessionTxt.map((_item, idx) => {
-  let sessionData = [];
-  for (let idx = 0; idx < sessionTxt.length; idx++) {
-    let item = sessionTxt[idx].split(",");
-
-    let GForc;
-    let tmpvel;
-    let tmpMillis;
-    let vel = +item[4];
-
-    let ms = 0
-
-    if (idx == 0) {
-      tmpvel = item[4];
-      tmpMillis = 10
-    } else {
-      tmpvel = lastItem[4];
-      tmpMillis = +item[6] - lastItem[6];
+    if (_trackTxt.file_suffix === "sa") {
 
     }
 
-    //tmpMillis = 10;
 
-    if (idx - 9 >= 0) {
-      tmpvel = sessionTxt[idx - 9].split(",")[4];
-      //[]
-    } else {
-      tmpvel = vel;
-    }
-    if (idx === sessionTxt.length - 1) {
-      ms = 0;
-    } else {
-      let nexitem = sessionTxt[idx + 1].split(",");
-      ms = nexitem[6] - item[6]
+    let sessionTxt;
 
+    if (_trackTxt.sessionTxt.indexOf("\r\n") > 0) {
+      sessionTxt = _trackTxt.sessionTxt.split("\r\n");
+    } else {
+      sessionTxt = _trackTxt.sessionTxt.split("\n");
     }
 
-    //https://create.arduino.cc/projecthub/guitar/gps-tacho-g-force-meter-accelerometer-1ea839
-    //GForc = (((vel - tmpvel) / 3.6) / (9.81 * tmpMillis / 1000)).toFixed(3);
-    GForc = (((vel - tmpvel) / 3.6) / (9.8)).toFixed(3);
-    //GForc = Math.sqrt(1 + Math.pow(((vel - tmpvel) / 3.6) / (9.8 * tmpMillis / 1000), 2)).toFixed(2);
+    if (sessionTxt[sessionTxt.length - 1] === "") {
+      sessionTxt.pop();
+    };
 
-    lastItem = item;
-    item.push(GForc);
-    item.push(ms);
-    //return item;
-    sessionData.push(item);
+    let lastItem;
+
+    // sessionData = sessionTxt.map((_item, idx) => {
+    let sessionData = [];
+    for (let idx = 0; idx < sessionTxt.length; idx++) {
+      let item = sessionTxt[idx].split(",");
+
+      let GForc;
+      let tmpvel;
+      let tmpMillis;
+      let vel = +item[4];
+
+      let ms = 0
+
+      if (idx == 0) {
+        tmpvel = item[4];
+        tmpMillis = 10
+      } else {
+        tmpvel = lastItem[4];
+        tmpMillis = +item[6] - lastItem[6];
+
+      }
+
+      //tmpMillis = 10;
+
+      if (idx - 9 >= 0) {
+        tmpvel = sessionTxt[idx - 9].split(",")[4];
+        //[]
+      } else {
+        tmpvel = vel;
+      }
+      if (idx === sessionTxt.length - 1) {
+        ms = 0;
+      } else {
+        let nexitem = sessionTxt[idx + 1].split(",");
+        ms = nexitem[6] - item[6]
+
+      }
+
+      //https://create.arduino.cc/projecthub/guitar/gps-tacho-g-force-meter-accelerometer-1ea839
+      //GForc = (((vel - tmpvel) / 3.6) / (9.81 * tmpMillis / 1000)).toFixed(3);
+      GForc = (((vel - tmpvel) / 3.6) / (9.8)).toFixed(3);
+      //GForc = Math.sqrt(1 + Math.pow(((vel - tmpvel) / 3.6) / (9.8 * tmpMillis / 1000), 2)).toFixed(2);
+
+      lastItem = item;
+      item.push(GForc);
+      item.push(ms);
+      //return item;
+      sessionData.push(item);
+    }
+    // console.log("sessionData==", sessionData[0], sessionData[1], sessionData[sessionData.length - 1]);
+    // const finishTxt = await RNFS.readFile(defaultRLDATAPath + "track.txt", 'utf8');
+    let finishTxt = _trackTxt.finishTxt;
+    finishData = JSON.parse(finishTxt);
+    //console.log("finishData", finishData)
+    let lap = getLap(sessionData);
+
+
+    return { sessionData, finishData, lap, err: 0 }
+  } catch {
+    return { sessionData: null, finishData: null, lap: null, err: "file unkown" }
   }
-  // console.log("sessionData==", sessionData[0], sessionData[1], sessionData[sessionData.length - 1]);
-  // const finishTxt = await RNFS.readFile(defaultRLDATAPath + "track.txt", 'utf8');
-  let finishTxt = _trackTxt.finishTxt;
-  finishData = JSON.parse(finishTxt);
-  //console.log("finishData", finishData)
-  let lap = getLap(sessionData);
-
-
-  return { sessionData, finishData, lap }
 
 }
 
+
+
+function ParseSa(txt) {
+
+
+}
 
 
 export {
